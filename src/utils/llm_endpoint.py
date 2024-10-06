@@ -1,15 +1,17 @@
 import os
-from dataclasses import dataclass
 from openai import OpenAI
 from requests.exceptions import RequestException
 
-@dataclass
+
 class LLM:
     platform: str
     model_name: str
     key: str = ""
 
-    def __post_init__(self):
+    def __init__(self, platform: str, model_name: str, key: str):
+        self.platform = platform
+        self.model_name = model_name
+        self.key = key
         if self.platform == 'openai':
             if not self.key:
                 self.key = os.getenv('OPENAI_API_KEY')
