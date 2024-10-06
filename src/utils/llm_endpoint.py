@@ -4,9 +4,6 @@ from requests.exceptions import RequestException
 
 
 class LLM:
-    platform: str
-    model_name: str
-    key: str = ""
 
     def __init__(self, platform: str, model_name: str, key: str):
         self.platform = platform
