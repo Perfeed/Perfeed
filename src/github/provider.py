@@ -90,7 +90,7 @@ class GithubProvider:
             PullRequest: The `PullRequest` object containing detailed information about the PR.
         """
         pr_number = pr['number']
-        owner = pr['user']['login']
+        owner = self.owner
         repo_name = pr['base']['repo']['name']
 
         pr_files = self.api.pulls.list_files(owner=self.owner, repo=repo_name, pull_number=pr_number)
@@ -225,7 +225,7 @@ class GithubProvider:
                         json.dump(pullRequests_dict, save_file, indent=6)
                     print(f'Saved PRs for {username} in {file_name}')                      
 
-if __name__ == '__main__':
-    git = GithubProvider(owner='run-llama', token=None)
-    pr = git.fetch_pr('llama_index', 16309)
-    print(pr)
+# if __name__ == '__main__':
+#     git = GithubProvider(owner='run-llama', token=None)
+#     pr = git.fetch_pr('llama_index', 16309)
+#     print(pr)
