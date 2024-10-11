@@ -8,7 +8,6 @@ class LLM:
     def __init__(self, platform: str, model_name: str):
         self.platform = platform
         self.model_name = model_name
-        key = None  # key should be set in environment, not in code.
 
         if self.platform == "openai":
             key = os.getenv("OPENAI_API_KEY")
