@@ -12,7 +12,7 @@ class OllamaClient(BaseClient):
     ) -> str:
 
         num_ctx = parameters.get("num_ctx", 4096)
-        temprature = parameters.get("temprature", 0.2)
+        temperature = parameters.get("temperature", 0.2)
 
         response = ollama.chat(
             model=model,
@@ -20,7 +20,7 @@ class OllamaClient(BaseClient):
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            options={"num_ctx": num_ctx, "temperature": temprature},
+            options={"num_ctx": num_ctx, "temperature": temperature},
         )
 
         return response["message"]["content"]
