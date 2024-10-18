@@ -1,26 +1,35 @@
 import ollama
-
 from .base_client import BaseClient
-
+from typing import Dict, Any
 
 class OllamaClient(BaseClient):
-    def __init__(self):
+    def __init__(
+            self,
+            model: str,
+            **kwargs
+    ):
+        self.model = model
+        self.all_kwargs = self._load_kwargs(kwargs)
         super().__init__()
 
     def chat_completion(
-        self, model: str, system: str, user: str, parameters: dict
+        self, system: str, user: str,
     ) -> str:
 
-        num_ctx = parameters.get("num_ctx", 4096)
-        temperature = parameters.get("temperature", 0.2)
-
         response = ollama.chat(
-            model=model,
+            model=self.model,
             messages=[
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            options={"num_ctx": num_ctx, "temperature": temperature},
+            options=self.all_kwargs,
         )
 
         return response["message"]["content"]
+
+    def _load_kwargs(self, kwargs):
+        if 'num_ctx' not in kwargs:
+            kwargs['num_ctx'] = 4096
+        if 'temperature' not in kwargs:
+            kwargs['temperature'] = 0
+        return kwargs

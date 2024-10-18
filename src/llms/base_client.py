@@ -12,7 +12,7 @@ class BaseClient(ABC):
 
     @abstractmethod
     def chat_completion(
-        self, model: str, system: str, user: str, parameters: dict
+        self, system: str, user: str
     ) -> str:
         """
         This method should be implemented to return a chat completion from the AI model.

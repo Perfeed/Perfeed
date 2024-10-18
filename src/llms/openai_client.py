@@ -2,13 +2,19 @@ import os
 
 from openai import OpenAI
 from requests.exceptions import RequestException
-
+from typing import Dict, Any
 from .base_client import BaseClient
 
 
 class OpenAIClient(BaseClient):
 
-    def __init__(self):
+    def __init__(
+            self,
+            model: str,
+            **kwargs
+    ) -> None:
+        self.model = model
+        self.all_kwargs = self._load_kwargs(kwargs)
         super().__init__()
 
         key = os.getenv("OPENAI_API_KEY")
@@ -17,20 +23,30 @@ class OpenAIClient(BaseClient):
         self.client = OpenAI(api_key=key)
 
     def chat_completion(
-        self, model: str, system: str, user: str, parameters: dict
+        self, user: str, system: str = "",
     ) -> str:
-        try:
-            temperature = parameters.get("temperature", 0.2)
 
+        try:
             response = self.client.chat.completions.create(
-                model=model,
                 messages=[
                     {"role": "system", "content": system},
                     {"role": "user", "content": user},
                 ],
-                temperature=temperature,
+                **self.all_kwargs
             )
         except RequestException as e:
             raise RuntimeError(f"Failed to communicate with the LLM platform: {str(e)}")
 
         return response.choices[0].message.content  # type: ignore
+
+    def _load_kwargs(self, kwargs) -> Dict[str, Any]:
+        # essential parameters
+        kwargs['model'] = self.model
+
+        # default parameter
+        if 'temperature' not in kwargs:
+            kwargs['temperature'] = 0
+        if 'stream' not in kwargs:
+            kwargs['stream'] = False
+
+        return kwargs
