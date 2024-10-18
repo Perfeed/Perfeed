@@ -1,19 +1,16 @@
-import json
-
 import requests
 from jinja2 import Environment, StrictUndefined
 
 from src.config_loader import settings
 from src.github import provider
-from src.utils.llm_endpoint import LLM
-from src.utils.tokenizer import count_tokens
+from src.llms.base_client import BaseClient
+from src.llms.ollama_client import OllamaClient
 
 
-# TODO: refactor the model settings (platform, model) for llm initialization to another function to be passed in.
 class PRSummarizer:
-    def __init__(self, platform: str, model: str, owner: str):
+    def __init__(self, owner: str, llm: BaseClient):
         self.git = provider.GithubProvider(owner=owner)
-        self.llm = LLM(platform=platform, model_name=model)
+        self.llm = llm
 
     def run(self, repo: str, pr_number: int):
         pr = self.git.fetch_pr(repo, pr_number)
@@ -34,37 +31,10 @@ class PRSummarizer:
             self.variables
         )
 
-        print(f"Token count: {count_tokens(system_prompt + user_prompt)}")
-
-        # override to use raw http request over openai api
-        data = {
-            "model": "llama3.1:8b",
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            "format": "json",
-            "stream": False,
-            "options": {"num_ctx": 8192, "top_k": 10, "top_p": 0.1},
-        }
-
-        response = requests.post(
-            "http://localhost:11434/api/chat",
-            headers={"Content-Type": "application/json"},
-            json=data,
-        )
-        json_data = json.loads(response.text)
-        print(json_data['message']['content'])
-
-        # summary = self.llm.invoke(user_prompt=user_prompt, system_prompt=system_prompt)
-        # print(summary)
+        summary = self.llm.chat_completion(system_prompt, user_prompt)
+        print(summary)
 
 
 if __name__ == "__main__":
-    summarizer = PRSummarizer(platform="openai", model="gpt-4o-mini", owner="Perfeed")
-    # summarizer = PRSummarizer(
-        # platform="ollama", model="llama3.1:8b-instruct-q4_0", owner="Perfeed"
-    # )
-    # summarizer = PRSummarizer(platform="ollama", model="codellama:13b-instruct", owner="Perfeed")
-
+    summarizer = PRSummarizer(owner="Perfeed", llm=OllamaClient("llama3.1:8b"))
     summarizer.run("perfeed", 5)
