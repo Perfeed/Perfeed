@@ -1,10 +1,10 @@
 import requests
 from jinja2 import Environment, StrictUndefined
 
-from src.config_loader import settings
-from src.github import provider
-from src.llms.base_client import BaseClient
-from src.llms.ollama_client import OllamaClient
+from perfeed.config_loader import settings
+from perfeed.github import provider
+from perfeed.llms.base_client import BaseClient
+from perfeed.llms.ollama_client import OllamaClient
 
 
 class PRSummarizer:

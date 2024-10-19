@@ -1,5 +1,5 @@
 import unittest
-from src.github.models import FileDiff, PRComment, CommentType, PullRequest
+from perfeed.github.models import FileDiff, PRComment, CommentType, PullRequest
 
 class TestFileDiff(unittest.TestCase):
     def test_to_dict(self):

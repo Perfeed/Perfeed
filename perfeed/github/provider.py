@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from ghapi.all import GhApi, pages
-from src.github.models import CommentType, PRComment, PullRequest, FileDiff
+from perfeed.github.models import CommentType, PRComment, PullRequest, FileDiff
 
 class GithubProvider:
     def __init__(self, owner: str, token: str | None = None):

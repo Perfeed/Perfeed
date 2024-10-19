@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
-from src.github.models import CommentType, PRComment, PullRequest, FileDiff
-from src.github.provider import GithubProvider  # Adjust the import to match your structure
+from perfeed.github.models import CommentType, PRComment, PullRequest, FileDiff
+from perfeed.github.provider import GithubProvider  # Adjust the import to match your structure
 
 class TestGithubProvider(unittest.TestCase):
 

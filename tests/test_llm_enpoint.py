@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from src.utils.llm_endpoint import LLM
+from perfeed.utils.llm_endpoint import LLM
 
 
 class TestLLM(unittest.TestCase):
