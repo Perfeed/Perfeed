@@ -7,7 +7,7 @@ from perfeed.config_loader import settings
 from perfeed.github import provider
 from perfeed.llms.base_client import BaseClient
 from perfeed.llms.ollama_client import OllamaClient
-from perfeed.models.pr_summary import PRDescription
+from perfeed.models.pr_summary import PRSummary
 
 
 class PRSummarizer:
@@ -15,7 +15,7 @@ class PRSummarizer:
         self.git = provider.GithubProvider(owner=owner)
         self.llm = llm
 
-    def run(self, repo: str, pr_number: int):
+    def run(self, repo: str, pr_number: int) -> PRSummary:
         pr = self.git.fetch_pr(repo, pr_number)
 
         self.variables = {
@@ -24,7 +24,7 @@ class PRSummarizer:
             "description": pr.description,
             "code": requests.get(pr.diff_url).text,
             "comments": pr.to_dict()["comments"],
-            "PRDescription": PRDescription.to_json_schema(),
+            "PRSummary": PRSummary.to_json_schema(),
         }
 
         environment = Environment(undefined=StrictUndefined)
@@ -36,9 +36,12 @@ class PRSummarizer:
         )
 
         summary = self.llm.chat_completion(system_prompt, user_prompt)
-        print(summary)
+        ## TODO: add exception handling when LLM fails to return correct json
+        pr_summary = PRSummary(**json.loads(summary))
+        return pr_summary
 
 
 if __name__ == "__main__":
     summarizer = PRSummarizer(owner="Perfeed", llm=OllamaClient("llama3.1:8b"))
-    summarizer.run("perfeed", 5)
+    pr_summary = summarizer.run("perfeed", 5)
+    print(pr_summary)

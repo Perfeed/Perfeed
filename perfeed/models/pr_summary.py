@@ -43,7 +43,7 @@ class CommentDescription(BaseModel):
     )
 
 
-class PRDescription(BaseModel):
+class PRSummary(BaseModel):
     type: list[PRType] = Field(
         description="one or more types that describe the PR content. Return the label member value (e.g. 'Bug fix', not 'bug_fix')"
     )
