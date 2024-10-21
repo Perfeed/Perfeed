@@ -1,3 +1,5 @@
+import json
+
 import requests
 from jinja2 import Environment, StrictUndefined
 
@@ -5,6 +7,7 @@ from perfeed.config_loader import settings
 from perfeed.github import provider
 from perfeed.llms.base_client import BaseClient
 from perfeed.llms.ollama_client import OllamaClient
+from perfeed.models.pr_summary import PRDescription
 
 
 class PRSummarizer:
@@ -21,6 +24,7 @@ class PRSummarizer:
             "description": pr.description,
             "code": requests.get(pr.diff_url).text,
             "comments": pr.to_dict()["comments"],
+            "PRDescription": PRDescription.to_json_schema(),
         }
 
         environment = Environment(undefined=StrictUndefined)
