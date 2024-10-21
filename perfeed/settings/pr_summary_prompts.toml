@@ -9,9 +9,9 @@ Your task is to provide a full description for the PR based on the user provided
 
 Keep the output concise so it's easy to read and understand.
 
-The output must be a JSON object equivalent to type $PRSummary, according to the following definitions:
+The output must be a JSON object equivalent to type $PRDescription, according to the following definitions:
 ===
-{{PRSummary}}
+{{PRDescription}}
 ===
 
 Example output:
