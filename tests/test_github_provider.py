@@ -1,9 +1,8 @@
 import unittest
-from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from perfeed.git_providers.github import GithubProvider
-from perfeed.models.git_provider import CommentType, FileDiff, PRComment, PullRequest
+from perfeed.models.git_provider import CommentType, PRComment, PullRequest
 
 
 class TestGithubProvider(unittest.TestCase):
@@ -89,19 +88,6 @@ class TestGithubProvider(unittest.TestCase):
         self.assertEqual(comments[0].created_at, "2023-10-01T10:00:00Z")
         self.assertEqual(comments[1].created_at, "2023-10-01T11:00:00Z")
 
-    def test_get_patch(self):
-        """
-        Test get_patch method to ensure it returns correct patch content.
-        """
-        pr_file = {"patch": "Test patch content"}
-        patch = self.github_provider.get_patch(pr_file)
-        self.assertEqual(patch, "Test patch content")
-
-        # Test case where patch is not available
-        pr_file_no_patch = {}
-        patch_no_content = self.github_provider.get_patch(pr_file_no_patch)
-        self.assertEqual(patch_no_content, "no changes")
-
     def test_fetch_pr(self):
         """
         Test fetch_pr method to ensure it fetches and converts PR data.
@@ -136,7 +122,6 @@ class TestGithubProvider(unittest.TestCase):
                 created_at="2023-10-01T10:00:00Z",
                 first_committed_at="2023-09-30T10:00:00Z",
                 description="This is a test pull request.",
-                code_diff=[],
                 html_url="http://example.com/pr/123",
                 diff_url="http://example.com/diff",
                 comments=[],

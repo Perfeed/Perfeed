@@ -9,20 +9,6 @@ class CommentType(Enum):
 
 
 @dataclass
-class FileDiff:
-    filename: str
-    status: str
-    patch: str
-
-    def to_dict(self) -> dict:
-        return {
-            "filename": self.filename,
-            "status": self.status,
-            "patch": self.patch,
-        }
-
-
-@dataclass
 class PRComment:
     id: int
     type: CommentType
@@ -58,7 +44,6 @@ class PullRequest:
     created_at: str
     first_committed_at: str
     description: str
-    code_diff: list[FileDiff]
     html_url: str
     diff_url: str
     comments: list[PRComment]
@@ -75,7 +60,6 @@ class PullRequest:
             "created_at": self.created_at,
             "first_committed_at": self.first_committed_at,
             "description": self.description,
-            "code_diff": [file_diff.to_dict() for file_diff in self.code_diff],
             "diff_url": self.diff_url,
             "html_url": self.html_url,
             "comments": [comment.to_dict() for comment in self.comments],

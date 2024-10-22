@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from ghapi.all import GhApi, pages
 
 from perfeed.git_providers.base import BaseGitProvider
-from perfeed.models.git_provider import CommentType, FileDiff, PRComment, PullRequest
+from perfeed.models.git_provider import CommentType, PRComment, PullRequest
 
 
 class GithubProvider(BaseGitProvider):
@@ -86,18 +86,6 @@ class GithubProvider(BaseGitProvider):
 
         return sorted(issue_comments + review_comments, key=lambda x: x.created_at)
 
-    def get_patch(self, pr_file: dict) -> str:
-        """
-        Retrieve the patch (changes) for a file in a pull request.
-
-        Args:
-            pr_file (dict): The file information dictionary from the GitHub API.
-
-        Returns:
-            str: The patch content or 'no changes' if not available.
-        """
-        return pr_file.get("patch", "no changes")
-
     def _to_PullRequest(self, pr: dict) -> PullRequest:
         """
         Convert a GitHub pull request dictionary into a `PullRequest` dataclass.
@@ -109,17 +97,7 @@ class GithubProvider(BaseGitProvider):
             PullRequest: The `PullRequest` object containing detailed information about the PR.
         """
         pr_number = pr["number"]
-        owner = self.owner
         repo_name = pr["base"]["repo"]["name"]
-
-        pr_files = self.api.pulls.list_files(  # type: ignore
-            owner=self.owner, repo=repo_name, pull_number=pr_number
-        )
-        code_diff: list[FileDiff] = []
-        for file in pr_files:
-            code_diff.append(
-                FileDiff(file["filename"], file["status"], self.get_patch(file))
-            )
 
         commits = self.api.pulls.list_commits(  # type: ignore
             owner=self.owner, repo=repo_name, pull_number=pr_number
@@ -155,7 +133,6 @@ class GithubProvider(BaseGitProvider):
             created_at=pr["created_at"],
             first_committed_at=first_committed_at,
             description=pr["body"],
-            code_diff=code_diff,
             html_url=pr["html_url"],
             diff_url=pr["diff_url"],
             comments=pr_comments,
@@ -219,7 +196,7 @@ class GithubProvider(BaseGitProvider):
         return all_prs
 
 
-if __name__ == '__main__':
-    git = GithubProvider(owner='run-llama', token=None)
-    pr = git.get_pr('llama_index', 16309)
+if __name__ == "__main__":
+    git = GithubProvider(owner="run-llama", token=None)
+    pr = git.get_pr("llama_index", 16309)
     print(pr)

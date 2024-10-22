@@ -1,19 +1,6 @@
 import unittest
 
-from perfeed.models.git_provider import CommentType, FileDiff, PRComment, PullRequest
-
-
-class TestFileDiff(unittest.TestCase):
-    def test_to_dict(self):
-        file_diff = FileDiff(
-            filename="test_file.py", status="modified", patch="@@ -1,2 +1,2 @@"
-        )
-        expected_dict = {
-            "filename": "test_file.py",
-            "status": "modified",
-            "patch": "@@ -1,2 +1,2 @@",
-        }
-        self.assertEqual(file_diff.to_dict(), expected_dict)
+from perfeed.models.git_provider import CommentType, PRComment, PullRequest
 
 
 class TestPRComment(unittest.TestCase):
@@ -68,9 +55,6 @@ class TestPRComment(unittest.TestCase):
 
 class TestPullRequest(unittest.TestCase):
     def test_to_dict(self):
-        file_diff = FileDiff(
-            filename="test_file.py", status="modified", patch="@@ -1,2 +1,2 @@"
-        )
         pr_comment = PRComment(
             id=123,
             type=CommentType.ISSUE_COMMENT,
@@ -89,7 +73,6 @@ class TestPullRequest(unittest.TestCase):
             created_at="2023-09-30T12:00:00Z",
             first_committed_at="2023-09-29T15:00:00Z",
             description="This PR fixes an issue.",
-            code_diff=[file_diff],
             diff_url="http://example.com/diff/1",
             html_url="http://example.com/pr/1",
             comments=[pr_comment],
@@ -105,7 +88,6 @@ class TestPullRequest(unittest.TestCase):
             "created_at": "2023-09-30T12:00:00Z",
             "first_committed_at": "2023-09-29T15:00:00Z",
             "description": "This PR fixes an issue.",
-            "code_diff": [file_diff.to_dict()],
             "diff_url": "http://example.com/diff/1",
             "html_url": "http://example.com/pr/1",
             "comments": [pr_comment.to_dict()],
