@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import re
@@ -13,11 +14,12 @@ from perfeed.models.git_provider import CommentType, FileDiff, PRComment, PullRe
 
 class GithubProvider(BaseGitProvider):
     def __init__(self, owner: str, token: str | None = None):
+        self.owner = owner
+
         load_dotenv()
         self.api = GhApi(
             owner=owner, token=token or os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
         )
-        self.owner = owner
 
     def _get_pr_comments(
         self, owner: str, repo_name: str, pr_number: int, comment_type: CommentType
@@ -81,6 +83,7 @@ class GithubProvider(BaseGitProvider):
         review_comments = self._get_pr_comments(
             self.owner, repo_name, pr_number, CommentType.REVIEW_COMMENT
         )
+
         return sorted(issue_comments + review_comments, key=lambda x: x.created_at)
 
     def get_patch(self, pr_file: dict) -> str:
@@ -216,7 +219,7 @@ class GithubProvider(BaseGitProvider):
         return all_prs
 
 
-# if __name__ == '__main__':
-#     git = GithubProvider(owner='run-llama', token=None)
-#     pr = git.fetch_pr('llama_index', 16309)
-#     print(pr)
+if __name__ == '__main__':
+    git = GithubProvider(owner='run-llama', token=None)
+    pr = git.get_pr('llama_index', 16309)
+    print(pr)

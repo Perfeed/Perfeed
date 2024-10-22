@@ -4,8 +4,9 @@ from typing import Optional
 
 
 class CommentType(Enum):
-    ISSUE_COMMENT = 'issue_comment'
-    REVIEW_COMMENT = 'review_comment'
+    ISSUE_COMMENT = "issue_comment"
+    REVIEW_COMMENT = "review_comment"
+
 
 @dataclass
 class FileDiff:
@@ -19,6 +20,7 @@ class FileDiff:
             "status": self.status,
             "patch": self.patch,
         }
+
 
 @dataclass
 class PRComment:
@@ -42,8 +44,9 @@ class PRComment:
             "body": self.body,
             "created_at": self.created_at,
             "in_reply_to_id": self.in_reply_to_id,
-            "html_url": self.html_url
+            "html_url": self.html_url,
         }
+
 
 @dataclass
 class PullRequest:
@@ -77,5 +80,5 @@ class PullRequest:
             "html_url": self.html_url,
             "comments": [comment.to_dict() for comment in self.comments],
             "diff_lines": self.diff_lines,
-            "merged_at": self.merged_at
+            "merged_at": self.merged_at,
         }
