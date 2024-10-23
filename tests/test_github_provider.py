@@ -1,3 +1,4 @@
+import asyncio
 import unittest
 from unittest.mock import patch
 
@@ -29,8 +30,10 @@ class TestGithubProvider(unittest.TestCase):
             }
         ]
 
-        comments = self.github_provider._get_pr_comments(
-            "test_owner", "test_repo", 1, CommentType.ISSUE_COMMENT
+        comments = asyncio.run(
+            self.github_provider._get_pr_comments(
+                "test_owner", "test_repo", 1, CommentType.ISSUE_COMMENT
+            )
         )
 
         self.assertEqual(len(comments), 1)
@@ -51,8 +54,10 @@ class TestGithubProvider(unittest.TestCase):
             }
         ]
 
-        comments = self.github_provider._get_pr_comments(
-            "test_owner", "test_repo", 1, CommentType.REVIEW_COMMENT
+        comments = asyncio.run(
+            self.github_provider._get_pr_comments(
+                "test_owner", "test_repo", 1, CommentType.REVIEW_COMMENT
+            )
         )
 
         self.assertEqual(len(comments), 1)
@@ -82,7 +87,7 @@ class TestGithubProvider(unittest.TestCase):
             }
         ]
 
-        comments = self.github_provider.list_pr_comments("test_repo", 1)
+        comments = asyncio.run(self.github_provider.list_pr_comments("test_repo", 1))
 
         self.assertEqual(len(comments), 2)
         self.assertEqual(comments[0].created_at, "2023-10-01T10:00:00Z")
@@ -129,10 +134,10 @@ class TestGithubProvider(unittest.TestCase):
                 merged_at=None,
             ),
         ) as mock_to_pull_request:
-            pull_request = self.github_provider.get_pr("test_repo", 123)
+            asyncio.run(self.github_provider.get_pr("test_repo", 123))
             mock_to_pull_request.assert_called_once_with(pr_data)
 
-    @patch("perfeed.github.provider.GithubProvider._get_pr_comments")
+    @patch("perfeed.git_providers.github.GithubProvider._get_pr_comments")
     def test_to_PullRequest(self, mock_get_pr_comments):
         """
         Test _to_PullRequest method to ensure it converts PR data correctly.
@@ -152,9 +157,6 @@ class TestGithubProvider(unittest.TestCase):
             "merged_at": None,
         }
 
-        self.mock_api.pulls.list_files.return_value = [
-            {"filename": "file1.py", "status": "modified", "patch": "patch content"}
-        ]
         self.mock_api.pulls.list_commits.return_value = [
             {"commit": {"author": {"date": "2023-09-30T10:00:00Z"}}}
         ]
@@ -163,7 +165,7 @@ class TestGithubProvider(unittest.TestCase):
         ]
         mock_get_pr_comments.return_value = []
 
-        pull_request = self.github_provider._to_PullRequest(pr_data)
+        pull_request = asyncio.run(self.github_provider._to_PullRequest(pr_data))
 
         self.assertEqual(pull_request.title, "Test PR")
         self.assertEqual(pull_request.diff_lines, "+10 -5")

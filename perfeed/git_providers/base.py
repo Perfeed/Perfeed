@@ -11,15 +11,15 @@ class BaseGitProvider(ABC):
         pass
 
     @abstractmethod
-    def list_pr_comments(self, repo_name: str, pr_number: int) -> list[PRComment]:
+    async def list_pr_comments(self, repo_name: str, pr_number: int) -> list[PRComment]:
         pass
 
     @abstractmethod
-    def get_pr(self, repo: str, pr_number: int) -> PullRequest:
+    async def get_pr(self, repo: str, pr_number: int) -> PullRequest:
         pass
 
     @abstractmethod
-    def list_pr_numbers(
+    async def list_pr_numbers(
         self, owner: str, repo_name: str, start_date: datetime, end_date: datetime
     ) -> list[int]:
         pass
