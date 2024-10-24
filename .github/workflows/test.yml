@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: ./Perfeed/pyproject.toml
+          python-version-file: ./pyproject.toml
           cache: "poetry"
       - name: Install the project dependencies
         run: poetry install
