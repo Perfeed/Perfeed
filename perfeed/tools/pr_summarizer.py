@@ -11,13 +11,16 @@ from perfeed.llms.ollama_client import OllamaClient
 from perfeed.models.pr_summary import PRSummary
 from perfeed.utils import json_output_curator
 
+from datetime import datetime, timezone
+
+
 class PRSummarizer:
     def __init__(self, git: BaseGitProvider, llm: BaseClient):
         self.git = git
         self.llm = llm
 
-    async def run(self, repo: str, pr_number: int) -> PRSummary:
-        pr = await self.git.get_pr(repo, pr_number)
+    def run(self, repo: str, pr_number: int) -> PRSummary:
+        pr = asyncio.run(self.git.get_pr(repo, pr_number))
 
         self.variables = {
             "author": pr.author,
@@ -39,10 +42,23 @@ class PRSummarizer:
         summary = self.llm.chat_completion(system_prompt, user_prompt)
         curated_summary = json_output_curator(summary)
         pr_summary = PRSummary(**json.loads(curated_summary))
-        return pr_summary
+        current_time = datetime.now(timezone.utc)
+        # to be added another data class
+        metadata = dict(
+            reop = repo,
+            author = pr.author,
+            pr_number = pr_number,
+            model_provider = self.llm.provider,
+            model = self.llm.model,
+            pr_created_at = pr.created_at,
+            pr_merged_at = pr.merged_at,
+            created_at = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        )        
+        return pr_summary, metadata
 
 
 if __name__ == "__main__":
     summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OllamaClient("llama3.2"))
-    pr_summary = summarizer.run("perfeed", 5)
+    pr_summary, metadata = summarizer.run("perfeed", 5)
+    print(metadata)
     print(pr_summary)

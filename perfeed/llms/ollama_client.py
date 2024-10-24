@@ -7,6 +7,7 @@ from .base_client import BaseClient
 
 class OllamaClient(BaseClient):
     def __init__(self, model: str):
+        self.provider = 'ollama'
         self.model = model
         super().__init__()
 
