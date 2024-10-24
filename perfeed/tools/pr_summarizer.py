@@ -4,7 +4,7 @@ import requests
 from jinja2 import Environment, StrictUndefined
 
 from perfeed.config_loader import settings
-from perfeed.github import provider
+from perfeed.git_providers import github
 from perfeed.llms.base_client import BaseClient
 from perfeed.llms.ollama_client import OllamaClient
 from perfeed.models.pr_summary import PRSummary
@@ -12,11 +12,11 @@ from perfeed.models.pr_summary import PRSummary
 
 class PRSummarizer:
     def __init__(self, owner: str, llm: BaseClient):
-        self.git = provider.GithubProvider(owner=owner)
+        self.git = github.GithubProvider(owner=owner)
         self.llm = llm
 
     def run(self, repo: str, pr_number: int) -> PRSummary:
-        pr = self.git.fetch_pr(repo, pr_number)
+        pr = self.git.get_pr(repo, pr_number)
 
         self.variables = {
             "author": pr.author,
