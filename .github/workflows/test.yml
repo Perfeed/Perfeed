@@ -19,6 +19,8 @@ jobs:
           cache: "poetry"
       - name: Install the project dependencies
         run: poetry install
+      - name: insall pytest
+        run: poetry add --dev pytest
       - name: Install Just
         uses: extractions/setup-just@v2
         with:
