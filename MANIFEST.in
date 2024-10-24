@@ -1,4 +1,0 @@
-include .env.example
-include poetry.lock
-include MANIFEST.in
-recursive-include .vscode *.json

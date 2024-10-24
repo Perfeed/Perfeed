@@ -3,44 +3,28 @@ name: Test
 on: [push, pull_request]
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        python: ['3.11', '3.12']
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.platform }}
-    
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python }}
-
-    - name: Install Poetry
-      run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-        echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
-    - name: Configure Poetry
-      run: |
-        poetry config virtualenvs.create true
-        poetry install --no-interaction --no-ansi
-      env:
-        POETRY_HTTP_TIMEOUT: 600
-        POETRY_VIRTUALENVS_IN_PROJECT: false
-        PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
-
-    - name: Install Nox
-      run: |
-        poetry add nox
-
-    - name: Test
-      run: |
-        poetry run nox -s tests-${{ matrix.python }}
-
-    - name: Lint
-      run: |
-        poetry run nox -s lint
+      - uses: actions/checkout@v4
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: "1.8.3"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ./Perfeed/pyproject.toml
+          cache: "poetry"
+      - name: Install the project dependencies
+        run: poetry install
+      - name: Install Just
+        uses: extractions/setup-just@v2
+        with:
+          just-version: "1.31.0"
+      - name: Prepare testing environment and Run tests
+        run: |
+          just test
+        env:
+          GITHUB_PERSONAL_ACCESS_TOKEN: test-token
