@@ -24,17 +24,7 @@ jobs:
         curl -sSL https://install.python-poetry.org | python3 -
         echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
 
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/pypoetry
-          ~/.virtualenvs
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-poetry-
-
-    - name: Install Dependencies
+    - name: Configure Poetry
       run: |
         poetry config virtualenvs.create true
         poetry install --no-interaction --no-ansi
@@ -42,9 +32,15 @@ jobs:
         POETRY_HTTP_TIMEOUT: 600
         POETRY_VIRTUALENVS_IN_PROJECT: false
         PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
-    
-    - name: Run Tests
-      run: poetry run nox -s tests-${{ matrix.python }}
+
+    - name: Install Nox
+      run: |
+        poetry add nox
+
+    - name: Test
+      run: |
+        poetry run nox -s tests-${{ matrix.python }}
 
     - name: Lint
-      run: poetry run nox -s lint
+      run: |
+        poetry run nox -s lint
