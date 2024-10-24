@@ -1,0 +1,3 @@
+include *.example
+include *.lock
+recursive-include .vscode *.json
