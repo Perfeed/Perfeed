@@ -1,5 +1,10 @@
 import tiktoken
-from pandas import Timestamp
+import re
+
+
+def json_output_curator(llm_output):
+    regex = re.compile(r'(```|json|\n)')
+    return regex.sub('', llm_output)
 
 
 def count_tokens(text, model="gpt-4o"):
