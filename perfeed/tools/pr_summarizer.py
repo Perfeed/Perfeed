@@ -1,22 +1,23 @@
 import json
-
+import asyncio
 import requests
 from jinja2 import Environment, StrictUndefined
 
 from perfeed.config_loader import settings
-from perfeed.git_providers import github
+from perfeed.git_providers.github import GithubProvider
+from perfeed.git_providers.base import BaseGitProvider
 from perfeed.llms.base_client import BaseClient
 from perfeed.llms.ollama_client import OllamaClient
 from perfeed.models.pr_summary import PRSummary
-
+from perfeed.utils import json_output_curator
 
 class PRSummarizer:
-    def __init__(self, owner: str, llm: BaseClient):
-        self.git = github.GithubProvider(owner=owner)
+    def __init__(self, git: BaseGitProvider, llm: BaseClient):
+        self.git = git
         self.llm = llm
 
-    def run(self, repo: str, pr_number: int) -> PRSummary:
-        pr = self.git.get_pr(repo, pr_number)
+    async def run(self, repo: str, pr_number: int) -> PRSummary:
+        pr = await self.git.get_pr(repo, pr_number)
 
         self.variables = {
             "author": pr.author,
@@ -36,12 +37,12 @@ class PRSummarizer:
         )
 
         summary = self.llm.chat_completion(system_prompt, user_prompt)
-        ## TODO: add exception handling when LLM fails to return correct json
-        pr_summary = PRSummary(**json.loads(summary))
+        curated_summary = json_output_curator(summary)
+        pr_summary = PRSummary(**json.loads(curated_summary))
         return pr_summary
 
 
 if __name__ == "__main__":
-    summarizer = PRSummarizer(owner="Perfeed", llm=OllamaClient("llama3.1:8b"))
+    summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OllamaClient("llama3.2"))
     pr_summary = summarizer.run("perfeed", 5)
     print(pr_summary)
