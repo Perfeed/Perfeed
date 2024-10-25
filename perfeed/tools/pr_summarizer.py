@@ -19,8 +19,8 @@ class PRSummarizer:
         self.git = git
         self.llm = llm
 
-    def run(self, repo: str, pr_number: int) -> PRSummary:
-        pr = asyncio.run(self.git.get_pr(repo, pr_number))
+    async def run(self, repo: str, pr_number: int) -> PRSummary:
+        pr = await self.git.get_pr(repo, pr_number)
 
         self.variables = {
             "author": pr.author,
