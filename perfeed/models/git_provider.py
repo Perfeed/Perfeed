@@ -33,7 +33,6 @@ class PRComment:
             "html_url": self.html_url,
         }
 
-
 @dataclass
 class PullRequest:
     number: int
@@ -66,3 +65,13 @@ class PullRequest:
             "diff_lines": self.diff_lines,
             "merged_at": self.merged_at,
         }
+
+@dataclass
+class RepositoryPullRequests:
+    repository_name: str
+    pull_request_number: list[int]
+
+@dataclass
+class AuthorRepositoryPullRequests:
+    author: str
+    repository_pull_requests: list[RepositoryPullRequests]

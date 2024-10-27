@@ -3,10 +3,10 @@ import os
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
-from ghapi.all import GhApi
+from ghapi.all import GhApi, pages
 
 from perfeed.git_providers.base import BaseGitProvider
-from perfeed.models.git_provider import CommentType, PRComment, PullRequest
+from perfeed.models.git_provider import CommentType, PRComment, PullRequest, AuthorRepositoryPullRequests, RepositoryPullRequests
 
 
 class GithubProvider(BaseGitProvider):
@@ -210,7 +210,99 @@ class GithubProvider(BaseGitProvider):
 
         return all_prs
 
+    async def _fetch_pr_numbers(self, repo_name: str, start_date: datetime, end_date: datetime):
+        """
+        Fetch all pull request numbers within a specified date range.
 
+        Args:
+            repo_name (str): The name of the repository.
+            start_date (datetime): The start date for filtering PRs.
+            end_date (datetime): The end date for filtering PRs.
+
+        Returns:
+            list[dict]: A list of pull request dictionaries.
+        """
+        all_prs = []
+        page = 1
+
+        while True:
+            # Fetch a page of pull requests (disable parallelism and handle pagination manually)
+            prs = self.api.pulls.list(owner=self.owner, repo=repo_name, state="closed", sort="created", direction="desc", per_page=100, page=page)
+            
+            # If no PRs were returned, break out of the loop
+            if not prs:
+                break
+
+            # Filter PRs for the date range within this page
+            filtered_prs = [
+                pr for pr in prs
+                if start_date <= datetime.strptime(pr['created_at'], '%Y-%m-%dT%H:%M:%SZ') <= end_date
+            ]
+            
+            all_prs.extend(filtered_prs)
+
+            # If fewer than 100 PRs were returned, this is the last page
+            if len(prs) < 100:
+                break
+
+            # Move to the next page
+            page += 1
+
+        return all_prs
+
+    async def get_authors_repo_prs(self, authors: list[str], start_date: datetime, end_date: datetime) -> list[AuthorRepositoryPullRequests]:
+        """
+        Fetch pull requests grouped by author and repository.
+        
+        Args:
+            authors (list[str]): List of author usernames to fetch PRs for.
+            start_date (datetime): The start date for filtering PRs.
+            end_date (datetime): The end date for filtering PRs.
+
+        Returns:
+            list[AuthorRepositoryPullRequests]: A list of dataclass objects containing PR data grouped by author.
+        """
+        author_prs_map = {}
+        
+        # Manual pagination to fetch repositories without parallelism
+        all_repos = []
+        page = 1
+        while True:
+            repos = self.api.repos.list_for_org(org=self.owner, per_page=100, page=page)
+            if not repos:
+                break
+            all_repos.extend(repos)
+            if len(repos) < 100:
+                break
+            page += 1
+        
+        # Fetch PRs for each repository and group by author
+        for repo in all_repos:
+            prs = await self._fetch_pr_numbers(repo_name=repo.name, start_date=start_date, end_date=end_date)
+            for author in authors:
+                for pr in prs:
+                    if pr['user']['login'] == author:
+                        if author not in author_prs_map:
+                            author_prs_map[author] = {}
+                        if repo.name not in author_prs_map[author]:
+                            author_prs_map[author][repo.name] = []
+                        author_prs_map[author][repo.name].append(pr['number'])
+
+        # Convert the author_prs_map into the appropriate dataclass structure
+        result = []
+        for author, repos in author_prs_map.items():
+            repo_pull_requests_list = []
+            for repo_name, pr_numbers in repos.items():
+                repo_pull_requests_list.append(RepositoryPullRequests(
+                    repository_name=repo_name,
+                    pull_request_number=pr_numbers
+                ))
+            result.append(AuthorRepositoryPullRequests(
+                author=author,
+                repository_pull_requests=repo_pull_requests_list
+            ))
+
+        return result
 # if __name__ == "__main__":
 #     import time
 

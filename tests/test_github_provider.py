@@ -1,6 +1,7 @@
 import asyncio
 import unittest
 from unittest.mock import patch
+from datetime import datetime
 
 from perfeed.git_providers.github import GithubProvider
 from perfeed.models.git_provider import CommentType, PRComment, PullRequest
@@ -170,6 +171,81 @@ class TestGithubProvider(unittest.TestCase):
         self.assertEqual(pull_request.title, "Test PR")
         self.assertEqual(pull_request.diff_lines, "+10 -5")
         self.assertEqual(pull_request.reviewers, ["reviewer1"])
+    
+    @patch("perfeed.git_providers.github.GithubProvider._fetch_pr_numbers")
+    async def test_get_authors_repo_prs(self, mock_fetch_pr_numbers):
+        """
+        Test get_authors_repo_prs to ensure it returns PRs grouped by author and repository.
+        """
+        # Mock PR data for two repositories
+        mock_fetch_pr_numbers.side_effect = [
+            [
+                {"number": 1, "user": {"login": "author1"}},
+                {"number": 2, "user": {"login": "author2"}},
+            ],
+            [
+                {"number": 3, "user": {"login": "author1"}},
+                {"number": 4, "user": {"login": "author2"}},
+            ]
+        ]
+
+        # Mock the list of repositories returned by the API
+        self.mock_api.repos.list_for_org.return_value = [
+            {"name": "repo1"},
+            {"name": "repo2"}
+        ]
+
+        # Define the date range and authors
+        start_date = datetime.strptime("2023-10-01", "%Y-%m-%d")
+        end_date = datetime.strptime("2023-10-31", "%Y-%m-%d")
+        authors = ["author1", "author2"]
+
+        # Call the function
+        result = await self.github_provider.get_authors_repo_prs(authors=authors, start_date=start_date, end_date=end_date)
+
+        # Assert the structure of the result
+        self.assertEqual(len(result), 2)
+
+        # Check data for author1
+        author1_data = next(item for item in result if item.author == "author1")
+        self.assertEqual(len(author1_data.repository_pull_requests), 2)
+        self.assertEqual(author1_data.repository_pull_requests[0].repository_name, "repo1")
+        self.assertEqual(author1_data.repository_pull_requests[0].pull_request_number, [1])
+        self.assertEqual(author1_data.repository_pull_requests[1].repository_name, "repo2")
+        self.assertEqual(author1_data.repository_pull_requests[1].pull_request_number, [3])
+
+        # Check data for author2
+        author2_data = next(item for item in result if item.author == "author2")
+        self.assertEqual(len(author2_data.repository_pull_requests), 2)
+        self.assertEqual(author2_data.repository_pull_requests[0].repository_name, "repo1")
+        self.assertEqual(author2_data.repository_pull_requests[0].pull_request_number, [2])
+        self.assertEqual(author2_data.repository_pull_requests[1].repository_name, "repo2")
+        self.assertEqual(author2_data.repository_pull_requests[1].pull_request_number, [4])
+
+    @patch("perfeed.git_providers.github.GithubProvider._fetch_pr_numbers")
+    async def test_get_authors_repo_prs_no_prs(self, mock_fetch_pr_numbers):
+        """
+        Test get_authors_repo_prs to handle the case where no PRs are returned.
+        """
+        # Mock no PR data (empty list)
+        mock_fetch_pr_numbers.side_effect = [[], []]
+
+        # Mock the list of repositories returned by the API
+        self.mock_api.repos.list_for_org.return_value = [
+            {"name": "repo1"},
+            {"name": "repo2"}
+        ]
+
+        # Define the date range and authors
+        start_date = datetime.strptime("2023-10-01", "%Y-%m-%d")
+        end_date = datetime.strptime("2023-10-31", "%Y-%m-%d")
+        authors = ["author1", "author2"]
+
+        # Call the function
+        result = await self.github_provider.get_authors_repo_prs(authors=authors, start_date=start_date, end_date=end_date)
+
+        # Assert that the result is empty
+        self.assertEqual(len(result), 0)
 
 
 if __name__ == "__main__":
