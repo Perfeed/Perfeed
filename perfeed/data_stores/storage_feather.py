@@ -17,10 +17,10 @@ class FeatherStorage(BaseStorage):
         if not os.path.exists(self.path):
             pd.DataFrame().to_feather(self.path)
 
-    def save(self, data: BaseModel, metadata: Dict) -> None:
+    def save(self, data: BaseModel, metadata: BaseModel) -> None:
         """validate, convert, and save the data"""
-        pr_data = validate_and_convert(self.data_type, data)
-        data = pd.concat([pr_data, pd.DataFrame.from_dict([metadata])], axis=1)
+        
+        data = validate_and_convert(self.data_type, data, metadata)        
         if os.path.exists(self.path):
             if self.append:
                 existing_data = pd.read_feather(self.path)

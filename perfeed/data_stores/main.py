@@ -17,7 +17,7 @@ class DataStore:
     def __init__(self, storage: BaseStorage=FeatherStorage) -> None:
         self.storage = storage
 
-    def save(self, data: BaseModel, metadata: Dict) -> None:
+    def save(self, data: BaseModel, metadata: BaseModel) -> None:
         self.storage.save(data=data, metadata=metadata)
 
     def load(self) -> pd.DataFrame:
@@ -27,19 +27,44 @@ class DataStore:
     def from_format(cls, store_type: str, **kwargs) -> BaseStorage:
         """initialize store type."""
 
+        data_type = kwargs.get("data_type")
+        overwrite = kwargs.get("overwrite", True)
+        append = kwargs.get("append", False)
+
         if store_type == "feather":
-            data_type = kwargs.get("data_type")
-            overwrite = kwargs.get("overwrite", True)
-            append = kwargs.get("append", False)
             return cls(FeatherStorage(data_type=data_type, overwrite=overwrite, append=append))
         
-        elif store_type == "sql":
-            db_url = kwargs.get("db_url")
-            table_name = kwargs.get("table_name")
-            overwrite = kwargs.get("overwrite", True)
-            append = kwargs.get("append", False)
-            if not db_url or not table_name:
-                raise ValueError("Both db_url and table_name are required for SQL storage.")
-            return cls(SQLStorage(db_url=db_url, table_name=table_name, overwrite=overwrite, append=append))
+        elif store_type == "sql":            
+            return cls(SQLStorage(data_type=data_type, overwrite=overwrite, append=append))
         else:
             raise UnsupportedFormatError(f"{store_type} is not supported.")
+
+
+if __name__ == "__main__":
+    from perfeed.tools.pr_summarizer import PRSummarizer
+    from perfeed.git_providers.github import GithubProvider
+    from perfeed.llms.ollama_client import OllamaClient
+
+    summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OllamaClient("llama3.2"))
+    pr_summary, metadata = summarizer.run("perfeed", 5)
+
+    # save and load
+    ds = DataStore.from_format(    
+        # store_type="feather",
+        store_type="sql",
+        data_type="pr_summary",
+        overwrite=True, 
+        append=False
+    )
+    ds.save(data=pr_summary, metadata=metadata)
+    ds.load()
+
+    # load only
+    ds2 = DataStore.from_format(    
+        # store_type="feather",
+        store_type="sql",
+        data_type="pr_summary",
+        overwrite=True, 
+        append=False
+    )
+    ds2.load()
