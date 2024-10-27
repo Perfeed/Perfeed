@@ -1,9 +1,10 @@
 import pandas as pd
 import os
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from perfeed.data_stores.base import BaseStorage
-from perfeed.data_stores.utils import validate_and_convert
+from perfeed.models.pr_summary import PRSummary, PRSummaryMetadata
 from typing import Dict
+import json
 
 class FeatherStorage(BaseStorage):
 
@@ -19,8 +20,8 @@ class FeatherStorage(BaseStorage):
 
     def save(self, data: BaseModel, metadata: BaseModel) -> None:
         """validate, convert, and save the data"""
-        
-        data = validate_and_convert(self.data_type, data, metadata)        
+
+        data = self.validate_and_convert(data, metadata)        
         if os.path.exists(self.path):
             if self.append:
                 existing_data = pd.read_feather(self.path)
@@ -33,4 +34,26 @@ class FeatherStorage(BaseStorage):
         if not os.path.exists(self.path):
             raise FileNotFoundError(f"{self.path} does not exist.")
         return pd.read_feather(self.path)
+    
+    def validate_and_convert(self, data: BaseModel, metadata: BaseModel) -> pd.DataFrame:
+            
+        data_model = PRSummary
+        metadat_model = PRSummaryMetadata
+
+        try:
+            data_model.model_validate(data)
+            metadat_model.model_validate(metadata)
+        except ValidationError as e:
+            raise RuntimeError(e)
+        
+        # pydantic object to dictionary
+        data_dict = data.model_dump() 
+        metadata_dict = metadata.model_dump()
+        
+        return pd.concat([
+            pd.DataFrame.from_dict([data_dict]),
+            pd.DataFrame.from_dict([metadata_dict])
+        ], axis=1)
+        
+
     

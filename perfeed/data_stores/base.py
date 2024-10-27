@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pydantic import BaseModel
 from typing import Dict
 import pandas as pd
 from perfeed.models.pr_summary import PRSummary
@@ -29,4 +30,7 @@ class BaseStorage(ABC):
     @abstractmethod
     def load(self) -> pd.DataFrame:
         pass
-
+    
+    @abstractmethod
+    def validate_and_convert(data: BaseModel, metadata: BaseModel) -> pd.DataFrame:
+        pass

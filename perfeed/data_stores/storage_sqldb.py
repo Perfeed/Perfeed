@@ -1,11 +1,12 @@
 import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy import inspect
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+from perfeed.models.pr_summary import PRSummary, PRSummaryMetadata
 from perfeed.data_stores.base import BaseStorage
-from perfeed.data_stores.utils import validate_and_convert
 from typing import Dict
 import os
+import json
 
 
 class SQLStorage(BaseStorage):
@@ -22,7 +23,7 @@ class SQLStorage(BaseStorage):
 
     def save(self, data: BaseModel, metadata: BaseModel) -> None:
         """Validate, convert, and save the data along with metadata"""
-        data = validate_and_convert(self.data_type, data, metadata, is_sqldb=True)
+        data = self.validate_and_convert(data, metadata)
         
         # Define SQL write options based on append and overwrite flags
         if_exists_option = 'replace' if self.overwrite else 'append' if self.append else 'fail'
@@ -36,3 +37,25 @@ class SQLStorage(BaseStorage):
         if not inspector.has_table(self.db_path):
             raise FileNotFoundError(f"Table '{self.table_name}' does not exist in the database.")
         return pd.read_sql_table(self.db_path, self.engine)
+    
+        
+    def validate_and_convert(self, data: BaseModel, metadata: BaseModel) -> pd.DataFrame:
+        data_model = PRSummary
+        metadat_model = PRSummaryMetadata
+        try:
+            data_model.model_validate(data)
+            metadat_model.model_validate(metadata)
+        except ValidationError as e:
+            raise RuntimeError(e)
+        
+        # pydantic object to dictionary
+        data_dict = data.model_dump() 
+        metadata_dict = metadata.model_dump()        
+        data_dict = {k: json.dumps(v) for k, v in data_dict.items()}
+        metadata_dict = {k: json.dumps(v) for k, v in metadata_dict.items()}
+        
+        return pd.concat([
+            pd.DataFrame.from_dict([data_dict]),
+            pd.DataFrame.from_dict([metadata_dict])
+        ], axis=1)
+    
