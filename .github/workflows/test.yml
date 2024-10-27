@@ -1,0 +1,32 @@
+name: Test
+
+on: [push]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: "1.8.3"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ./pyproject.toml
+          cache: "poetry"
+      - name: Install the project dependencies
+        run: poetry install
+      - name: insall pytest
+        run: poetry add --dev pytest
+      - name: Install Just
+        uses: extractions/setup-just@v2
+        with:
+          just-version: "1.31.0"
+      - name: Prepare testing environment and Run tests
+        run: |
+          just test
+        env:
+          GITHUB_PERSONAL_ACCESS_TOKEN: test-token
