@@ -65,3 +65,15 @@ class PRSummary(BaseModel):
     @classmethod
     def to_json_schema(cls) -> str:
         return json.dumps(cls.model_json_schema(), indent=2)
+
+
+class PRSummaryMetadata(BaseModel):
+    "for metadata purpose. separated from PRSummary. which serves for not only as a data model but a prompt."
+    repo: str 
+    author: str
+    pr_number: int
+    llm_provider: str
+    model: str
+    pr_created_at: str
+    pr_merged_at: str
+    created_at: str
