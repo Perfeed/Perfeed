@@ -44,5 +44,5 @@ class PRSummarizer:
 
 if __name__ == "__main__":
     summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OllamaClient("llama3.2"))
-    pr_summary = summarizer.run("perfeed", 5)
+    pr_summary = asyncio.run(summarizer.run("perfeed", 5))
     print(pr_summary)
