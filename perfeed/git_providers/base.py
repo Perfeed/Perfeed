@@ -20,6 +20,6 @@ class BaseGitProvider(ABC):
 
     @abstractmethod
     async def list_pr_numbers(
-        self, owner: str, repo_name: str, start_date: datetime, end_date: datetime
+        self, repo_name: str, start_date: datetime, end_date: datetime, closed_only: bool = True
     ) -> list[int]:
         pass
