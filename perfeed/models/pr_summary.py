@@ -68,6 +68,7 @@ class PRSummary(BaseModel):
 
 
 class PRSummaryMetadata(BaseModel):
+    "for metadata purpose. separated from PRSummary. which serves for not only as a data model but a prompt."
     repo: str 
     author: str
     pr_number: int

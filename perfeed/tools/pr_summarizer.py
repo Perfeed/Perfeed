@@ -19,8 +19,8 @@ class PRSummarizer:
         self.git = git
         self.llm = llm
 
-    def run(self, repo: str, pr_number: int) -> Tuple[PRSummary, PRSummaryMetadata]:
-        pr = asyncio.run(self.git.get_pr(repo, pr_number))
+    async def run(self, repo: str, pr_number: int) -> Tuple[PRSummary, PRSummaryMetadata]:
+        pr = await self.git.get_pr(repo, pr_number)
 
         self.variables = {
             "author": pr.author,
@@ -47,7 +47,7 @@ class PRSummarizer:
             repo = repo,
             author = pr.author,
             pr_number = pr_number,
-            llm_provider = self.llm.provider,
+            llm_provider = self.llm.__class__.__name__,
             model = self.llm.model,
             pr_created_at = pr.created_at,
             pr_merged_at = pr.merged_at,
@@ -58,6 +58,6 @@ class PRSummarizer:
 
 if __name__ == "__main__":
     summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OllamaClient("llama3.2"))
-    pr_summary, metadata = summarizer.run("perfeed", 5)
+    pr_summary, metadata = asyncio.run(summarizer.run("perfeed", 5))
     print(metadata)
     print(pr_summary)

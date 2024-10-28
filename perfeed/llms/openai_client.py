@@ -10,7 +10,6 @@ from .base_client import BaseClient
 class OpenAIClient(BaseClient):
 
     def __init__(self, model: str) -> None:
-        self.provider = 'openai'
         self.model = model
         super().__init__()
 
