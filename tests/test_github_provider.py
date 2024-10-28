@@ -1,5 +1,6 @@
 import asyncio
 import unittest
+from datetime import datetime
 from unittest.mock import patch
 
 from perfeed.git_providers.github import GithubProvider
@@ -170,6 +171,173 @@ class TestGithubProvider(unittest.TestCase):
         self.assertEqual(pull_request.title, "Test PR")
         self.assertEqual(pull_request.diff_lines, "+10 -5")
         self.assertEqual(pull_request.reviewers, ["reviewer1"])
+
+    def test_list_pr_numbers_full_page(self):
+        mocked_full_page = [  # 7 days from 10/10 ~ 10/16
+            {
+                "number": 7,
+                "created_at": "2024-10-16T10:00:00Z",
+            },
+            {
+                "number": 6,
+                "created_at": "2024-10-15T10:00:00Z",
+            },
+            {
+                "number": 5,
+                "created_at": "2024-10-14T10:00:00Z",
+            },
+            {
+                "number": 4,
+                "created_at": "2024-10-13T10:00:00Z",
+            },
+            {
+                "number": 3,
+                "created_at": "2024-10-12T10:00:00Z",
+            },
+            {
+                "number": 2,
+                "created_at": "2024-10-11T10:00:00Z",
+            },
+            {
+                "number": 1,
+                "created_at": "2024-10-10T10:00:00Z",
+            },
+        ]
+
+        def side_effect(owner, repo, state, sort, direction, per_page, page):
+            if page == 1:
+                return mocked_full_page
+            else:
+                return []
+
+        self.mock_api.pulls.list.side_effect = side_effect
+
+        # start and end cover the entire 7 days
+        start = datetime.strptime("2024-10-09T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        end = datetime.strptime("2024-10-17T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+
+        pr_numbers = asyncio.run(
+            self.github_provider.list_pr_numbers("test_repo", start, end, True)
+        )
+
+        self.assertSequenceEqual(pr_numbers, [7, 6, 5, 4, 3, 2, 1])
+        self.mock_api.pulls.list.assert_any_call(
+            owner="test_owner",
+            repo="test_repo",
+            state="closed",
+            sort="created",
+            direction="desc",
+            per_page=100,
+            page=1,
+        )
+
+    def test_list_pr_numbers_two_pages(self):
+        mocked_1st_page = [
+            {
+                "number": 7,
+                "created_at": "2024-10-16T10:00:00Z",
+            },
+            {
+                "number": 6,
+                "created_at": "2024-10-15T10:00:00Z",
+            },
+            {
+                "number": 5,
+                "created_at": "2024-10-14T10:00:00Z",
+            },
+            {
+                "number": 4,
+                "created_at": "2024-10-13T10:00:00Z",
+            },
+        ]
+
+        mocked_2nd_page = [
+            {
+                "number": 3,
+                "created_at": "2024-10-12T10:00:00Z",
+            },
+            {
+                "number": 2,
+                "created_at": "2024-10-11T10:00:00Z",
+            },
+            {
+                "number": 1,
+                "created_at": "2024-10-10T10:00:00Z",
+            },
+        ]
+
+        def side_effect(owner, repo, state, sort, direction, per_page, page):
+            if page == 1:
+                return mocked_1st_page
+            if page == 2:
+                return mocked_2nd_page
+            else:
+                return []
+
+        self.mock_api.pulls.list.side_effect = side_effect
+
+        # start and end cover the entire 7 days
+        start = datetime.strptime("2024-10-09T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        end = datetime.strptime("2024-10-17T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+
+        pr_numbers = asyncio.run(
+            self.github_provider.list_pr_numbers("rest_repo", start, end, True)
+        )
+        self.assertSequenceEqual(pr_numbers, [7, 6, 5, 4, 3, 2, 1])
+
+    def test_list_pr_numbers_only_2nd_page(self):
+        mocked_1st_page = [
+            {
+                "number": 7,
+                "created_at": "2024-10-16T10:00:00Z",
+            },
+            {
+                "number": 6,
+                "created_at": "2024-10-15T10:00:00Z",
+            },
+            {
+                "number": 5,
+                "created_at": "2024-10-14T10:00:00Z",
+            },
+            {
+                "number": 4,
+                "created_at": "2024-10-13T10:00:00Z",
+            },
+        ]
+
+        mocked_2nd_page = [
+            {
+                "number": 3,
+                "created_at": "2024-10-12T10:00:00Z",
+            },
+            {
+                "number": 2,
+                "created_at": "2024-10-11T10:00:00Z",
+            },
+            {
+                "number": 1,
+                "created_at": "2024-10-10T10:00:00Z",
+            },
+        ]
+
+        def side_effect(owner, repo, state, sort, direction, per_page, page):
+            if page == 1:
+                return mocked_1st_page
+            if page == 2:
+                return mocked_2nd_page
+            else:
+                return []
+
+        self.mock_api.pulls.list.side_effect = side_effect
+
+        # only covers [10/10 - 10/11] on the 2nd page
+        start = datetime.strptime("2024-10-10T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        end = datetime.strptime("2024-10-11T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+
+        pr_numbers = asyncio.run(
+            self.github_provider.list_pr_numbers("rest_repo", start, end, True)
+        )
+        self.assertSequenceEqual(pr_numbers, [2, 1])
 
 
 if __name__ == "__main__":

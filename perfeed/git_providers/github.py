@@ -1,6 +1,6 @@
 import asyncio
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from dotenv import load_dotenv
 from ghapi.all import GhApi
@@ -171,29 +171,33 @@ class GithubProvider(BaseGitProvider):
         pr = await asyncio.to_thread(self.api.pulls.get, repo, pr_number)  # type: ignore
         return await self._to_PullRequest(pr)
 
-    ## TODO: This method currently doesn't handle the situation where [start_date, end_date] is way in the past so the first page of 100 PRs won't be included and will just return prematurely.
     async def list_pr_numbers(
-        self, owner: str, repo_name: str, start_date: datetime, end_date: datetime
+        self,
+        repo_name: str,
+        start_date: datetime,
+        end_date: datetime,
+        closed_only: bool = True,
     ) -> list[int]:
         """
-        Fetch all pull request numbers within a specified date range.
+        Fetch all pull request numbers within a specified date range, sorted by creation time in descending order.
 
         Args:
-            owner (str): The owner of the repository. Could be an author or an organization
             repo_name (str): The name of the repository.
             start_date (datetime): The start date for filtering PRs.
             end_date (datetime): The end date for filtering PRs.
+            closed_only (bool): Only includes the closed PRs if True. Otherwise, all PRs are included.
 
         Returns:
             list[dict]: A list of pull request dictionaries.
         """
         all_prs = []
         page = 1
+        state = "closed" if closed_only else "all"
         while True:
-            prs = await asyncio.to_thread(self.api.pulls.list, owner=owner, repo=repo_name, state="closed", sort="created", direction="desc", per_page=100, page=page)  # type: ignore
+            prs: list = await asyncio.to_thread(self.api.pulls.list, owner=self.owner, repo=repo_name, state=state, sort="created", direction="desc", per_page=100, page=page)  # type: ignore
             # Filter PRs for the date range within this page
             filtered_prs = [
-                pr.number
+                pr["number"]
                 for pr in prs
                 if start_date
                 <= datetime.strptime(pr["created_at"], "%Y-%m-%dT%H:%M:%SZ")
@@ -202,8 +206,18 @@ class GithubProvider(BaseGitProvider):
 
             all_prs.extend(filtered_prs)
 
-            # this is the last page that fits the filter condition
-            if len(filtered_prs) < 100:
+            ## this is the last page that fits the filter condition
+            ##
+            ##          page N        page N-1               page 1
+            ##    |--------------||--------------| ... |--------------|
+            ## prs[-1]
+            ##        |-----------------------------|
+            ##      start_date                    end_date
+            if (
+                len(prs) == 0
+                or datetime.strptime(prs[-1]["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+                < start_date
+            ):
                 break
 
             page += 1
@@ -213,6 +227,7 @@ class GithubProvider(BaseGitProvider):
 
 # if __name__ == "__main__":
 #     import time
+#     from datetime import timedelta
 
 #     git = GithubProvider(owner="run-llama", token=None)
 
@@ -226,8 +241,6 @@ class GithubProvider(BaseGitProvider):
 #     end = datetime.now()
 #     start = end - timedelta(days=7)
 #     now = time.perf_counter()
-#     pr_numbers = asyncio.run(
-#         git.list_pr_numbers("run-llama", "llama_index", start, end)
-#     )
+#     pr_numbers = asyncio.run(git.list_pr_numbers("llama_index", start, end))
 #     elapsed = time.perf_counter() - now
 #     print(f"Took {elapsed:0.5f} seconds.\n {pr_numbers}")
