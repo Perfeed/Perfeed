@@ -7,6 +7,7 @@ settings = Dynaconf(
         os.path.join(current_dir, f)
         for f in [
             "settings/pr_summary_prompts.toml",
+            "settings/weekly_summary_prompts.toml",
         ]
     ]
 )

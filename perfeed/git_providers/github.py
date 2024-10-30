@@ -200,7 +200,7 @@ class GithubProvider(BaseGitProvider):
                 pr["number"]
                 for pr in prs
                 if start_date
-                <= datetime.strptime(pr["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+                <= datetime.strptime(pr["created_at"], "%Y-%m-%dT%H:%M:%S%z")
                 <= end_date
             ]
 
@@ -215,7 +215,7 @@ class GithubProvider(BaseGitProvider):
             ##      start_date                    end_date
             if (
                 len(prs) == 0
-                or datetime.strptime(prs[-1]["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+                or datetime.strptime(prs[-1]["created_at"], "%Y-%m-%dT%H:%M:%S%z")
                 < start_date
             ):
                 break
