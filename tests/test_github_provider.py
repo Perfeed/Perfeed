@@ -25,7 +25,7 @@ class TestGithubProvider(unittest.TestCase):
             {
                 "id": 1,
                 "user": {"login": "test_user", "type": "User"},
-                "created_at": "2023-10-01T10:00:00Z",
+                "created_at": "2023-10-01T10:00:00+08:00",
                 "body": "Test issue comment",
                 "html_url": "http://example.com/comment/1",
             }
@@ -49,7 +49,7 @@ class TestGithubProvider(unittest.TestCase):
             {
                 "id": 2,
                 "user": {"login": "review_user", "type": "User"},
-                "created_at": "2023-10-01T11:00:00Z",
+                "created_at": "2023-10-01T11:00:00+08:00",
                 "body": "Test review comment",
                 "html_url": "http://example.com/comment/2",
             }
@@ -73,7 +73,7 @@ class TestGithubProvider(unittest.TestCase):
             {
                 "id": 1,
                 "user": {"login": "test_user", "type": "User"},
-                "created_at": "2023-10-01T10:00:00Z",
+                "created_at": "2023-10-01T10:00:00+08:00",
                 "body": "Issue comment",
                 "html_url": "http://example.com/comment/1",
             }
@@ -82,7 +82,7 @@ class TestGithubProvider(unittest.TestCase):
             {
                 "id": 2,
                 "user": {"login": "review_user", "type": "User"},
-                "created_at": "2023-10-01T11:00:00Z",
+                "created_at": "2023-10-01T11:00:00+08:00",
                 "body": "Review comment",
                 "html_url": "http://example.com/comment/2",
             }
@@ -91,8 +91,8 @@ class TestGithubProvider(unittest.TestCase):
         comments = asyncio.run(self.github_provider.list_pr_comments("test_repo", 1))
 
         self.assertEqual(len(comments), 2)
-        self.assertEqual(comments[0].created_at, "2023-10-01T10:00:00Z")
-        self.assertEqual(comments[1].created_at, "2023-10-01T11:00:00Z")
+        self.assertEqual(comments[0].created_at, "2023-10-01T10:00:00+08:00")
+        self.assertEqual(comments[1].created_at, "2023-10-01T11:00:00+08:00")
 
     def test_fetch_pr(self):
         """
@@ -103,7 +103,7 @@ class TestGithubProvider(unittest.TestCase):
             "title": "Test PR",
             "user": {"login": "author"},
             "state": "open",
-            "created_at": "2023-10-01T10:00:00Z",
+            "created_at": "2023-10-01T10:00:00+08:00",
             "body": "This is a test pull request.",
             "html_url": "http://example.com/pr/123",
             "diff_url": "http://example.com/diff",
@@ -125,8 +125,8 @@ class TestGithubProvider(unittest.TestCase):
                 state="open",
                 author="author",
                 reviewers=["reviewer1"],
-                created_at="2023-10-01T10:00:00Z",
-                first_committed_at="2023-09-30T10:00:00Z",
+                created_at="2023-10-01T10:00:00+08:00",
+                first_committed_at="2023-09-30T10:00:00+08:00",
                 description="This is a test pull request.",
                 html_url="http://example.com/pr/123",
                 diff_url="http://example.com/diff",
@@ -149,7 +149,7 @@ class TestGithubProvider(unittest.TestCase):
             "user": {"login": "author"},
             "base": {"repo": {"name": "test_repo"}},
             "state": "open",
-            "created_at": "2023-10-01T10:00:00Z",
+            "created_at": "2023-10-01T10:00:00+08:00",
             "body": "This is a test pull request.",
             "html_url": "http://example.com/pr/123",
             "diff_url": "http://example.com/diff",
@@ -159,7 +159,7 @@ class TestGithubProvider(unittest.TestCase):
         }
 
         self.mock_api.pulls.list_commits.return_value = [
-            {"commit": {"author": {"date": "2023-09-30T10:00:00Z"}}}
+            {"commit": {"author": {"date": "2023-09-30T10:00:00+08:00"}}}
         ]
         self.mock_api.pulls.list_reviews.return_value = [
             {"user": {"login": "reviewer1", "type": "User"}}
@@ -176,31 +176,31 @@ class TestGithubProvider(unittest.TestCase):
         mocked_full_page = [  # 7 days from 10/10 ~ 10/16
             {
                 "number": 7,
-                "created_at": "2024-10-16T10:00:00Z",
+                "created_at": "2024-10-16T10:00:00+08:00",
             },
             {
                 "number": 6,
-                "created_at": "2024-10-15T10:00:00Z",
+                "created_at": "2024-10-15T10:00:00+08:00",
             },
             {
                 "number": 5,
-                "created_at": "2024-10-14T10:00:00Z",
+                "created_at": "2024-10-14T10:00:00+08:00",
             },
             {
                 "number": 4,
-                "created_at": "2024-10-13T10:00:00Z",
+                "created_at": "2024-10-13T10:00:00+08:00",
             },
             {
                 "number": 3,
-                "created_at": "2024-10-12T10:00:00Z",
+                "created_at": "2024-10-12T10:00:00+08:00",
             },
             {
                 "number": 2,
-                "created_at": "2024-10-11T10:00:00Z",
+                "created_at": "2024-10-11T10:00:00+08:00",
             },
             {
                 "number": 1,
-                "created_at": "2024-10-10T10:00:00Z",
+                "created_at": "2024-10-10T10:00:00+08:00",
             },
         ]
 
@@ -213,8 +213,8 @@ class TestGithubProvider(unittest.TestCase):
         self.mock_api.pulls.list.side_effect = side_effect
 
         # start and end cover the entire 7 days
-        start = datetime.strptime("2024-10-09T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
-        end = datetime.strptime("2024-10-17T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        start = datetime.strptime("2024-10-09T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
+        end = datetime.strptime("2024-10-17T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
 
         pr_numbers = asyncio.run(
             self.github_provider.list_pr_numbers("test_repo", start, end, True)
@@ -235,34 +235,34 @@ class TestGithubProvider(unittest.TestCase):
         mocked_1st_page = [
             {
                 "number": 7,
-                "created_at": "2024-10-16T10:00:00Z",
+                "created_at": "2024-10-16T10:00:00+08:00",
             },
             {
                 "number": 6,
-                "created_at": "2024-10-15T10:00:00Z",
+                "created_at": "2024-10-15T10:00:00+08:00",
             },
             {
                 "number": 5,
-                "created_at": "2024-10-14T10:00:00Z",
+                "created_at": "2024-10-14T10:00:00+08:00",
             },
             {
                 "number": 4,
-                "created_at": "2024-10-13T10:00:00Z",
+                "created_at": "2024-10-13T10:00:00+08:00",
             },
         ]
 
         mocked_2nd_page = [
             {
                 "number": 3,
-                "created_at": "2024-10-12T10:00:00Z",
+                "created_at": "2024-10-12T10:00:00+08:00",
             },
             {
                 "number": 2,
-                "created_at": "2024-10-11T10:00:00Z",
+                "created_at": "2024-10-11T10:00:00+08:00",
             },
             {
                 "number": 1,
-                "created_at": "2024-10-10T10:00:00Z",
+                "created_at": "2024-10-10T10:00:00+08:00",
             },
         ]
 
@@ -277,8 +277,8 @@ class TestGithubProvider(unittest.TestCase):
         self.mock_api.pulls.list.side_effect = side_effect
 
         # start and end cover the entire 7 days
-        start = datetime.strptime("2024-10-09T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
-        end = datetime.strptime("2024-10-17T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        start = datetime.strptime("2024-10-09T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
+        end = datetime.strptime("2024-10-17T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
 
         pr_numbers = asyncio.run(
             self.github_provider.list_pr_numbers("rest_repo", start, end, True)
@@ -289,34 +289,34 @@ class TestGithubProvider(unittest.TestCase):
         mocked_1st_page = [
             {
                 "number": 7,
-                "created_at": "2024-10-16T10:00:00Z",
+                "created_at": "2024-10-16T10:00:00+08:00",
             },
             {
                 "number": 6,
-                "created_at": "2024-10-15T10:00:00Z",
+                "created_at": "2024-10-15T10:00:00+08:00",
             },
             {
                 "number": 5,
-                "created_at": "2024-10-14T10:00:00Z",
+                "created_at": "2024-10-14T10:00:00+08:00",
             },
             {
                 "number": 4,
-                "created_at": "2024-10-13T10:00:00Z",
+                "created_at": "2024-10-13T10:00:00+08:00",
             },
         ]
 
         mocked_2nd_page = [
             {
                 "number": 3,
-                "created_at": "2024-10-12T10:00:00Z",
+                "created_at": "2024-10-12T10:00:00+08:00",
             },
             {
                 "number": 2,
-                "created_at": "2024-10-11T10:00:00Z",
+                "created_at": "2024-10-11T10:00:00+08:00",
             },
             {
                 "number": 1,
-                "created_at": "2024-10-10T10:00:00Z",
+                "created_at": "2024-10-10T10:00:00+08:00",
             },
         ]
 
@@ -331,8 +331,8 @@ class TestGithubProvider(unittest.TestCase):
         self.mock_api.pulls.list.side_effect = side_effect
 
         # only covers [10/10 - 10/11] on the 2nd page
-        start = datetime.strptime("2024-10-10T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
-        end = datetime.strptime("2024-10-11T10:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        start = datetime.strptime("2024-10-10T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
+        end = datetime.strptime("2024-10-11T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
 
         pr_numbers = asyncio.run(
             self.github_provider.list_pr_numbers("rest_repo", start, end, True)

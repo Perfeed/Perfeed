@@ -1,12 +1,10 @@
-from typing import Any, Dict
-
 import ollama
 
 from .base_client import BaseClient
 
 
 class OllamaClient(BaseClient):
-    def __init__(self, model: str):        
+    def __init__(self, model: str):
         self.model = model
         super().__init__()
 
@@ -37,7 +35,7 @@ class OllamaClient(BaseClient):
                 {"role": "user", "content": user},
             ],
             options={
-                "num_ctx": kwargs.get("num_ctx", 4096 * 2),
+                "num_ctx": kwargs.get("num_ctx", 1024 * 32),
                 "temperature": kwargs.get("temperature", 0),
             },
         )

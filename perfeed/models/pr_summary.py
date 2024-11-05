@@ -16,7 +16,7 @@ class FileDescription(BaseModel):
     filename: str = Field(description="The full file path of the relevant file.")
     language: str = Field(description="The programming language of the relevant file.")
     changes_summary: str = Field(
-        description="concise summary of the changes in the relevant file, in bullet points (1-4 bullet points)."
+        description="a concise summary of the changes in the relevant file, describing in 1-3 sentences."
     )
     changes_title: str = Field(
         description="an informative title for the changes in the files, describing its main theme (5-10 words)."
@@ -51,7 +51,7 @@ class PRSummary(BaseModel):
         description="an informative title for the PR, describing its main theme"
     )
     description: str = Field(
-        description="an informative and concise description of the PR. Use bullet points. Display first the most significant changes."
+        description="an informative and concise description of the PR. Highlight the most significant changes."
     )
     pr_files: list[FileDescription] = Field(
         max_length=15,
@@ -69,7 +69,7 @@ class PRSummary(BaseModel):
 
 class PRSummaryMetadata(BaseModel):
     "for metadata purpose. separated from PRSummary. which serves for not only as a data model but a prompt."
-    repo: str 
+    repo: str
     author: str
     pr_number: int
     llm_provider: str

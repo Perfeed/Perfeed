@@ -69,6 +69,6 @@ PR comments:
 '{{comments}}'
 ======
 
-Response (should be a valid json, and nothing else):
+Response (should be a valid PRSummary json, and nothing else):
 ```json
 """
