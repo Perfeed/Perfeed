@@ -47,6 +47,8 @@ class WeeklySummarizer:
 
         print(f"Summarizing the following PR-{pr_numbers}")
 
+        # TODO: load the PR summaries from the pervious batch if exists.
+
         summary_futures = [
             self.summarizer.run(repo_name, pr_number) for pr_number in pr_numbers
         ]
