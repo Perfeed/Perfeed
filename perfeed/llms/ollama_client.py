@@ -6,7 +6,6 @@ from .base_client import BaseClient
 class OllamaClient(BaseClient):
     def __init__(self, model: str):
         self.model = model
-        super().__init__()
 
     def chat_completion(self, system: str, user: str, **kwargs) -> str:
         """

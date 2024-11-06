@@ -7,12 +7,13 @@ from perfeed.models.pr_summary import PRSummary
 
 class UnsupportedFormatError(Exception):
     """Exception raised for unsupported storage formats."""
+
     pass
 
 
 class BaseStorage(ABC):
     """Abstract base class for storage handlers."""
-    
+
     def __init__(self, data_type: str, append: bool = True, overwrite: bool = False):
         self.data_type = data_type
         self.overwrite = overwrite
@@ -21,16 +22,20 @@ class BaseStorage(ABC):
 
     def _validate_options(self):
         if self.overwrite and self.append:
-            raise ValueError("Cannot set both overwrite and append to True simultaneously.")
+            raise ValueError(
+                "Cannot set both overwrite and append to True simultaneously."
+            )
 
     @abstractmethod
-    def save(self, data: PRSummary, metadata: Dict) -> None:
+    def save(self, data: BaseModel, metadata: BaseModel) -> None:
         pass
-    
+
     @abstractmethod
     def load(self) -> pd.DataFrame:
         pass
-    
+
     @abstractmethod
-    def validate_and_convert(data: BaseModel, metadata: BaseModel) -> pd.DataFrame:
+    def validate_and_convert(
+        self, data: BaseModel, metadata: BaseModel
+    ) -> pd.DataFrame:
         pass

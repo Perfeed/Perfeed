@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-
+from typing import Optional
 from pydantic import BaseModel, Field
 
 
@@ -75,5 +75,5 @@ class PRSummaryMetadata(BaseModel):
     llm_provider: str
     model: str
     pr_created_at: str
-    pr_merged_at: str
+    pr_merged_at: Optional[str] = None
     created_at: str
