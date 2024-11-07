@@ -172,34 +172,41 @@ class TestGithubProvider(unittest.TestCase):
         self.assertEqual(pull_request.diff_lines, "+10 -5")
         self.assertEqual(pull_request.reviewers, ["reviewer1"])
 
-    def test_list_pr_numbers_full_page(self):
+    def test_search_prs_full_page(self):
         mocked_full_page = [  # 7 days from 10/10 ~ 10/16
             {
                 "number": 7,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-16T10:00:00+08:00",
             },
             {
                 "number": 6,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-15T10:00:00+08:00",
             },
             {
                 "number": 5,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-14T10:00:00+08:00",
             },
             {
                 "number": 4,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-13T10:00:00+08:00",
             },
             {
                 "number": 3,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-12T10:00:00+08:00",
             },
             {
                 "number": 2,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-11T10:00:00+08:00",
             },
             {
                 "number": 1,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-10T10:00:00+08:00",
             },
         ]
@@ -217,7 +224,9 @@ class TestGithubProvider(unittest.TestCase):
         end = datetime.strptime("2024-10-17T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
 
         pr_numbers = asyncio.run(
-            self.github_provider.list_pr_numbers("test_repo", start, end, True)
+            self.github_provider.search_prs(
+                "test_repo", start, end, {"test-user"}, True
+            )
         )
 
         self.assertSequenceEqual(pr_numbers, [7, 6, 5, 4, 3, 2, 1])
@@ -235,18 +244,22 @@ class TestGithubProvider(unittest.TestCase):
         mocked_1st_page = [
             {
                 "number": 7,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-16T10:00:00+08:00",
             },
             {
                 "number": 6,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-15T10:00:00+08:00",
             },
             {
                 "number": 5,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-14T10:00:00+08:00",
             },
             {
                 "number": 4,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-13T10:00:00+08:00",
             },
         ]
@@ -254,14 +267,17 @@ class TestGithubProvider(unittest.TestCase):
         mocked_2nd_page = [
             {
                 "number": 3,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-12T10:00:00+08:00",
             },
             {
                 "number": 2,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-11T10:00:00+08:00",
             },
             {
                 "number": 1,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-10T10:00:00+08:00",
             },
         ]
@@ -281,7 +297,9 @@ class TestGithubProvider(unittest.TestCase):
         end = datetime.strptime("2024-10-17T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
 
         pr_numbers = asyncio.run(
-            self.github_provider.list_pr_numbers("rest_repo", start, end, True)
+            self.github_provider.search_prs(
+                "rest_repo", start, end, {"test-user"}, True
+            )
         )
         self.assertSequenceEqual(pr_numbers, [7, 6, 5, 4, 3, 2, 1])
 
@@ -289,18 +307,22 @@ class TestGithubProvider(unittest.TestCase):
         mocked_1st_page = [
             {
                 "number": 7,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-16T10:00:00+08:00",
             },
             {
                 "number": 6,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-15T10:00:00+08:00",
             },
             {
                 "number": 5,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-14T10:00:00+08:00",
             },
             {
                 "number": 4,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-13T10:00:00+08:00",
             },
         ]
@@ -308,14 +330,17 @@ class TestGithubProvider(unittest.TestCase):
         mocked_2nd_page = [
             {
                 "number": 3,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-12T10:00:00+08:00",
             },
             {
                 "number": 2,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-11T10:00:00+08:00",
             },
             {
                 "number": 1,
+                "user": {"login": "test-user"},
                 "created_at": "2024-10-10T10:00:00+08:00",
             },
         ]
@@ -335,9 +360,79 @@ class TestGithubProvider(unittest.TestCase):
         end = datetime.strptime("2024-10-11T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
 
         pr_numbers = asyncio.run(
-            self.github_provider.list_pr_numbers("rest_repo", start, end, True)
+            self.github_provider.search_prs(
+                "rest_repo", start, end, {"test-user"}, True
+            )
         )
         self.assertSequenceEqual(pr_numbers, [2, 1])
+
+    def test_search_prs_by_authors(self):
+        mocked_full_page = [  # 7 days from 10/10 ~ 10/16
+            {
+                "number": 7,
+                "user": {"login": "test-user-1"},
+                "created_at": "2024-10-16T10:00:00+08:00",
+            },
+            {
+                "number": 6,
+                "user": {"login": "test-user-2"},
+                "created_at": "2024-10-15T10:00:00+08:00",
+            },
+            {
+                "number": 5,
+                "user": {"login": "test-user-1"},
+                "created_at": "2024-10-14T10:00:00+08:00",
+            },
+            {
+                "number": 4,
+                "user": {"login": "test-user-2"},
+                "created_at": "2024-10-13T10:00:00+08:00",
+            },
+            {
+                "number": 3,
+                "user": {"login": "test-user-1"},
+                "created_at": "2024-10-12T10:00:00+08:00",
+            },
+            {
+                "number": 2,
+                "user": {"login": "test-user-2"},
+                "created_at": "2024-10-11T10:00:00+08:00",
+            },
+            {
+                "number": 1,
+                "user": {"login": "test-user-1"},
+                "created_at": "2024-10-10T10:00:00+08:00",
+            },
+        ]
+
+        def side_effect(owner, repo, state, sort, direction, per_page, page):
+            if page == 1:
+                return mocked_full_page
+            else:
+                return []
+
+        self.mock_api.pulls.list.side_effect = side_effect
+
+        # start and end cover the entire 7 days
+        start = datetime.strptime("2024-10-09T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
+        end = datetime.strptime("2024-10-17T10:00:00+08:00", "%Y-%m-%dT%H:%M:%S%z")
+
+        pr_numbers = asyncio.run(
+            self.github_provider.search_prs(
+                "test_repo", start, end, {"test-user-1"}, True
+            )
+        )
+
+        self.assertSequenceEqual(pr_numbers, [7, 5, 3, 1])
+        self.mock_api.pulls.list.assert_any_call(
+            owner="test_owner",
+            repo="test_repo",
+            state="closed",
+            sort="created",
+            direction="desc",
+            per_page=100,
+            page=1,
+        )
 
 
 if __name__ == "__main__":

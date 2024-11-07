@@ -19,7 +19,7 @@ class BaseGitProvider(ABC):
         pass
 
     @abstractmethod
-    async def list_pr_numbers(
-        self, repo_name: str, start_date: datetime, end_date: datetime, closed_only: bool = True
+    async def search_prs(
+        self, repo_name: str, start_date: datetime, end_date: datetime, authors: set[str], closed_only: bool = True
     ) -> list[int]:
         pass
