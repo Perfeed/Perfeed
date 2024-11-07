@@ -1,14 +1,10 @@
 from abc import ABC, abstractmethod
 
-
 class BaseClient(ABC):
     """
     This class defines the interface for a LLM client.
     """
-
-    @abstractmethod
-    def __init__(self):
-        pass
+    model: str
 
     @abstractmethod
     def chat_completion(self, system: str, user: str, **kwargs) -> str:

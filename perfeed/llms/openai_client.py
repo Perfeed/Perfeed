@@ -11,7 +11,6 @@ class OpenAIClient(BaseClient):
 
     def __init__(self, model: str) -> None:
         self.model = model
-        super().__init__()
 
         key = os.getenv("OPENAI_API_KEY")
         if not key:
