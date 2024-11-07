@@ -49,11 +49,14 @@ class WeeklySummarizer:
 
         # TODO: load the PR summaries from the pervious batch if exists.
 
-        summary_futures = [
+        summary_objects_futures = [
             self.summarizer.run(repo_name, pr_number) for pr_number in pr_numbers
         ]
 
-        summaries = await asyncio.gather(*summary_futures, return_exceptions=True)
+        summary_objects = await asyncio.gather(*summary_objects_futures, return_exceptions=True)
+        print(summary_objects)
+        summaries = [i[0] for i in summary_objects]
+
 
         elapsed = time.perf_counter() - now
         print(f"Summarized {len(summaries)} PRs in {elapsed:0.5f} seconds")
@@ -88,13 +91,15 @@ class WeeklySummarizer:
 
 if __name__ == "__main__":
     git = GithubProvider("Perfeed")
-    summarizer = PRSummarizer(git=git, llm=OllamaClient("llama3.1:8b"))
-    llm = OllamaClient("llama3.1:8b")
+    llm = OllamaClient("llama3.1")
+    summarizer = PRSummarizer(git=git, llm=llm)    
     weekly_summarizer = WeeklySummarizer(git=git, summarizer=summarizer, llm=llm)
-    asyncio.run(
+    from IPython.display import display, Markdown, Latex
+    tt = asyncio.run(
         weekly_summarizer.run(
-            users=["jimmytai", "chihangwang"],
+            users=["..."],
             repo_name="perfeed",
             start_of_week="2024-10-21",
         )
     )
+    display(Markdown(tt))

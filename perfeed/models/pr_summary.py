@@ -58,7 +58,7 @@ class PRSummary(BaseModel):
         description="a list of the files in the PR, and summary of their changes",
     )
     comments: list[CommentDescription] = Field(
-        max_length=10,
+        max_length=100,
         description="a list of the comments in the PR. Display first the most useful comments.",
     )
 
