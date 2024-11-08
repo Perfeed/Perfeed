@@ -171,11 +171,12 @@ class GithubProvider(BaseGitProvider):
         pr = await asyncio.to_thread(self.api.pulls.get, repo, pr_number)  # type: ignore
         return await self._to_PullRequest(pr)
 
-    async def list_pr_numbers(
+    async def search_prs(
         self,
         repo_name: str,
         start_date: datetime,
         end_date: datetime,
+        authors: set[str],
         closed_only: bool = True,
     ) -> list[int]:
         """
@@ -185,24 +186,27 @@ class GithubProvider(BaseGitProvider):
             repo_name (str): The name of the repository.
             start_date (datetime): The start date for filtering PRs.
             end_date (datetime): The end date for filtering PRs.
+            authors (set[str]): A set of author names to filter by.
             closed_only (bool): Only includes the closed PRs if True. Otherwise, all PRs are included.
 
         Returns:
-            list[dict]: A list of pull request dictionaries.
+            list[int]: A list of pull request numbers that match the criteria.
         """
         all_prs = []
         page = 1
         state = "closed" if closed_only else "all"
         while True:
             prs: list = await asyncio.to_thread(self.api.pulls.list, owner=self.owner, repo=repo_name, state=state, sort="created", direction="desc", per_page=100, page=page)  # type: ignore
+
             # Filter PRs for the date range within this page
-            filtered_prs = [
-                pr["number"]
-                for pr in prs
-                if start_date
-                <= datetime.strptime(pr["created_at"], "%Y-%m-%dT%H:%M:%S%z")
-                <= end_date
-            ]
+            filtered_prs = []
+            for pr in prs:
+                created_at = datetime.strptime(pr["created_at"], "%Y-%m-%dT%H:%M:%S%z")
+                if (
+                    start_date <= created_at <= end_date
+                    and pr["user"]["login"] in authors
+                ):
+                    filtered_prs.append(pr["number"])
 
             all_prs.extend(filtered_prs)
 
