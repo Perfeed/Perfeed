@@ -7,6 +7,7 @@ from ghapi.all import GhApi
 
 from perfeed.git_providers.base import BaseGitProvider
 from perfeed.models.git_provider import CommentType, PRComment, PullRequest
+from perfeed.config_loader import settings
 
 
 class GithubProvider(BaseGitProvider):
@@ -15,7 +16,7 @@ class GithubProvider(BaseGitProvider):
 
         load_dotenv()
         self.api = GhApi(
-            owner=owner, token=token or os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+            owner=owner, token=token or settings.github.personal_access_token
         )
 
     async def _get_pr_comments(

@@ -1,4 +1,5 @@
 .env
+.secrets.*
 _scratch.*
 _data
 **/__pycache__/

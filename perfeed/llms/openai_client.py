@@ -4,6 +4,8 @@ from typing import Any, Dict
 from openai import OpenAI
 from requests.exceptions import RequestException
 
+from perfeed.config_loader import settings
+
 from .base_client import BaseClient
 
 
@@ -12,17 +14,12 @@ class OpenAIClient(BaseClient):
     def __init__(self, model: str) -> None:
         self.model = model
 
-        key = os.getenv("OPENAI_API_KEY")
+        key = settings.openai.key
         if not key:
             raise RuntimeError("'OPENAI_API_KEY' not found via os.getenv")
         self.client = OpenAI(api_key=key)
 
-    def chat_completion(
-        self,
-        system: str,
-        user: str,
-        **kwargs
-    ) -> str:
+    def chat_completion(self, system: str, user: str, **kwargs) -> str:
         """
         Generates a completion for a chat interaction using the OpenAI API.
 

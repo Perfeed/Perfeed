@@ -1,5 +1,7 @@
 import ollama
 
+from perfeed.config_loader import settings
+
 from .base_client import BaseClient
 
 
@@ -27,6 +29,9 @@ class OllamaClient(BaseClient):
             str: The content of the generated message response.
         """
 
+        default_num_ctx = settings.ollama.num_ctx
+        default_temperature = settings.ollama.temperature
+
         response = ollama.chat(
             model=self.model,
             messages=[
@@ -34,8 +39,8 @@ class OllamaClient(BaseClient):
                 {"role": "user", "content": user},
             ],
             options={
-                "num_ctx": kwargs.get("num_ctx", 1024 * 32),
-                "temperature": kwargs.get("temperature", 0),
+                "num_ctx": kwargs.get("num_ctx", default_num_ctx),
+                "temperature": kwargs.get("temperature", default_temperature),
             },
         )
 
