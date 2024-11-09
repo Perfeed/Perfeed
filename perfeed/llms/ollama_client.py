@@ -1,7 +1,7 @@
 import ollama
 
 from .base_client import BaseClient
-
+from perfeed.utils import count_tokens
 
 class OllamaClient(BaseClient):
     def __init__(self, model: str):
@@ -26,7 +26,8 @@ class OllamaClient(BaseClient):
         Returns:
             str: The content of the generated message response.
         """
-
+        approx_token_counts = count_tokens(''.join([system, user]))
+        token_buffer = 1.1
         response = ollama.chat(
             model=self.model,
             messages=[
@@ -34,7 +35,7 @@ class OllamaClient(BaseClient):
                 {"role": "user", "content": user},
             ],
             options={
-                "num_ctx": kwargs.get("num_ctx", 128000),
+                "num_ctx": kwargs.get("num_ctx", int(approx_token_counts*token_buffer)),
                 "temperature": kwargs.get("temperature", 0),
             },
         )

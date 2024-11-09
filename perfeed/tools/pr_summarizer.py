@@ -12,7 +12,8 @@ from perfeed.models.pr_summary import PRSummary, PRSummaryMetadata
 from perfeed.utils import json_output_curator
 from datetime import datetime, timezone
 from typing import Tuple
-
+from collections import defaultdict
+from perfeed.models.git_provider import PRComment
 
 class PRSummarizer:
     def __init__(self, git: BaseGitProvider, llm: BaseClient):
@@ -29,7 +30,7 @@ class PRSummarizer:
             "title": pr.title,
             "description": pr.description,
             "code": requests.get(pr.diff_url).text,
-            "comments": pr.to_dict()["comments"],
+            "comments": self._comments_to_thread(pr.comments),
             "PRSummary": PRSummary.to_json_schema(),
         }
 
@@ -40,9 +41,10 @@ class PRSummarizer:
         user_prompt = environment.from_string(settings.pr_summary_prompt.user).render(
             self.variables
         )
-
+        
         summary = self.llm.chat_completion(system_prompt, user_prompt)
-        curated_summary = json_output_curator(summary)
+        curated_summary = json_output_curator(summary)       
+        print(curated_summary) 
         pr_summary = PRSummary(**json.loads(curated_summary))
         current_time = datetime.now(timezone.utc)
         pr_metadata = PRSummaryMetadata(
@@ -57,14 +59,45 @@ class PRSummarizer:
         )
         return pr_summary, pr_metadata
 
+    
+    def _comments_to_thread(self, pr_comments: list[PRComment]) -> str:
+        thread = defaultdict()
+        for prc in pr_comments:
+            if not prc.in_reply_to_id:
+                thread[prc.id] = {
+                    'parent_thread_id': prc.id,
+                    'child_thread_ids': [],
+                    'diff_hunk': prc.diff_hunk,
+                    'html_url': prc.html_url,
+                    'content': [
+                        {
+                            'user': prc.user,
+                            'body': prc.body,
+                            'created_at': prc.created_at
+                        }
+                    ],
+                    'code_change': prc.code_change
+                }
+            else:
+                thread[prc.in_reply_to_id]['child_thread_ids'].append(prc.id)
+                thread[prc.in_reply_to_id]['content'].append(
+                    {
+                        'user': prc.user,
+                        'body': prc.body,
+                        'created_at': prc.created_at
+                    }
+                )
+
+        return json.dumps([i for i in thread.values()])
+
 
 if __name__ == "__main__":
     from perfeed.llms.ollama_client import OllamaClient
     from perfeed.llms.openai_client import OpenAIClient
 
     summarizer = PRSummarizer(
-        GithubProvider("Perfeed"), llm=OllamaClient("llama3.1:8b")
+        GithubProvider("Perfeed"), llm=OllamaClient("llama3.1")
     )
     # summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OpenAIClient("gpt-4o-mini"))
-    pr_summary = asyncio.run(summarizer.run("perfeed", 13))
+    pr_summary = asyncio.run(summarizer.run("perfeed", 14))
     print(pr_summary)

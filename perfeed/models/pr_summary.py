@@ -26,17 +26,36 @@ class FileDescription(BaseModel):
     )
 
 
-class CommentDescription(BaseModel):
-    id: int = Field(description="comment_id")
-    html_url: str = Field(description="the url of the comment")
+# class CommentDescription(BaseModel):
+#     id: int = Field(description="comment_id")
+#     html_url: str = Field(description="the url of the comment")
+#     summary: str = Field(
+#         description="provide the context and summerize what the comment tries to address"
+#     )
+#     eval_aspect: list[str] = Field(
+#         description="which evaluation cateogry the comment fall into?"
+#     )
+#     lead_to_action: str = Field(
+#         description="what impact does the comment have? any code change, reply, or no action?"
+#     )
+#     lead_to_action_desc: str = Field(
+#         description="provide description on lead_to_action field"
+#     )
+
+
+class CommentThread(BaseModel):
+    parent_thread_id: int = Field(description="parent_thread_id")
+    child_thread_ids: list[int] = Field(description="child_thread_ids")
+    users: list[str] = Field(description="list all the users involved in the discussion")
+    html_url: str = Field(description="the url of the main comment")
     summary: str = Field(
-        description="provide the context and summerize what the comment tries to address"
+        description="provide the context and summerize what the comment thread tries to address"
     )
     eval_aspect: list[str] = Field(
         description="which evaluation cateogry the comment fall into?"
     )
     lead_to_action: str = Field(
-        description="what impact does the comment have? any code change, reply, or no action?"
+        description="review pr comment code_change object and the discussion. determine which of the following: code change, clarification or no action"
     )
     lead_to_action_desc: str = Field(
         description="provide description on lead_to_action field"
@@ -45,7 +64,7 @@ class CommentDescription(BaseModel):
 
 class PRSummary(BaseModel):
     type: list[PRType] = Field(
-        description="one or more types that describe the PR content. Return the label member value (e.g. 'Bug fix', not 'bug_fix')"
+        description="one or more types that describe the PR content. Return only the members of PRType Enum."
     )
     title: str = Field(
         description="an informative title for the PR, describing its main theme"
@@ -57,9 +76,9 @@ class PRSummary(BaseModel):
         max_length=15,
         description="a list of the files in the PR, and summary of their changes",
     )
-    comments: list[CommentDescription] = Field(
+    comments: list[CommentThread] = Field(
         max_length=100,
-        description="a list of the comments in the PR. Display first the most useful comments.",
+        description="a list of the comment thread in the PR.",
     )
 
     @classmethod
