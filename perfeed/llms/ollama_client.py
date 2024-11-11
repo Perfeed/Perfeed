@@ -1,6 +1,7 @@
 import ollama
 
 from perfeed.config_loader import settings
+from perfeed.utils.utils import count_tokens
 
 from .base_client import BaseClient
 
@@ -30,6 +31,11 @@ class OllamaClient(BaseClient):
         """
 
         default_num_ctx = settings.ollama.num_ctx
+        if settings.ollama.auto_num_ctx:
+            approx_token_counts = count_tokens("".join([system, user]))
+            num_ctx_buffer = settings.ollama.num_ctx_buffer
+            default_num_ctx = int(approx_token_counts * num_ctx_buffer)
+
         default_temperature = settings.ollama.temperature
 
         response = ollama.chat(
