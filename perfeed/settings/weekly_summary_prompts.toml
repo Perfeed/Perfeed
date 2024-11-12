@@ -18,7 +18,7 @@ Overview:
     - The bug fix addressed inconsistencies in the PRSummarizer output, ensuring it returns a typed response. The enhancement introduced a new base class for git providers, supporting extensibility and async operations.
 ---    
 Significant Changes:
-    - Bug Fix: Renamed PRDescription to PRSummary for clarity and updated return types across the codebase.
+    - Bug Fix: updated PRSummarizer for correct return types across the codebase.
     - Enhancement: Added BaseGitProvider to enable support for multiple implementations beyond GitHub and refactored the GitHubProvider to use asynchronous calls for improved concurrency.
 ---    
 Refactors/Architecture:
@@ -50,7 +50,7 @@ Related Files:
 Review Process:
     - lando321 commented on the caching logic, suggesting an additional layer of invalidation for stale data. This feedback led to a change in the final implementation, ensuring a more robust solution.
     - liz38 asked for clarification about the removed legacy utility methods. Maria provided detailed justifications, which were accepted without further changes.
-    - In one PR, the author successfully declined a request to break down the performance optimizations into separate commits, explaining that the combined changes were essential to resolve the concurrency issue effectively.
+    - In one PR, the author explained and politely declined a request to break down the performance optimizations into separate commits, explaining that the combined changes were essential to resolve the concurrency issue effectively.
     - All PRs were merged within 48 hours after addressing the feedback, showcasing efficient collaboration.
 """
 

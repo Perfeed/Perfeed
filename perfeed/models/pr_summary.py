@@ -26,30 +26,16 @@ class FileDescription(BaseModel):
     )
 
 
-# class CommentDescription(BaseModel):
-#     id: int = Field(description="comment_id")
-#     html_url: str = Field(description="the url of the comment")
-#     summary: str = Field(
-#         description="provide the context and summerize what the comment tries to address"
-#     )
-#     eval_aspect: list[str] = Field(
-#         description="which evaluation cateogry the comment fall into?"
-#     )
-#     lead_to_action: str = Field(
-#         description="what impact does the comment have? any code change, reply, or no action?"
-#     )
-#     lead_to_action_desc: str = Field(
-#         description="provide description on lead_to_action field"
-#     )
-
-
 class CommentThread(BaseModel):
     parent_thread_id: int = Field(description="parent_thread_id")
     child_thread_ids: list[int] = Field(description="child_thread_ids")
     users: list[str] = Field(description="list all the users involved in the discussion")
-    html_url: str = Field(description="the url of the main comment")
+    html_url: str = Field(description="the url of the main comment")    
     summary: str = Field(
         description="provide the context and summerize what the comment thread tries to address"
+    )
+    details: str = Field(
+        description="parse comment['body'] to provide user conversation details in plain text and in a 3rd person view"
     )
     eval_aspect: list[str] = Field(
         description="which evaluation cateogry the comment fall into?"

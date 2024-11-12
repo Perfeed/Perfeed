@@ -6,14 +6,12 @@ from jinja2 import Environment, StrictUndefined
 
 from perfeed.config_loader import settings
 from perfeed.git_providers.base import BaseGitProvider
-from perfeed.git_providers.github import GithubProvider
+from perfeed.git_providers.github import GithubProvider, comments_to_thread
 from perfeed.llms.base_client import BaseClient
 from perfeed.models.pr_summary import PRSummary, PRSummaryMetadata
 from perfeed.utils import json_output_curator
 from datetime import datetime, timezone
 from typing import Tuple
-from collections import defaultdict
-from perfeed.models.git_provider import PRComment
 
 class PRSummarizer:
     def __init__(self, git: BaseGitProvider, llm: BaseClient):
@@ -30,7 +28,7 @@ class PRSummarizer:
             "title": pr.title,
             "description": pr.description,
             "code": requests.get(pr.diff_url).text,
-            "comments": self._comments_to_thread(pr.comments),
+            "comments": comments_to_thread(pr.comments),
             "PRSummary": PRSummary.to_json_schema(),
         }
 
@@ -38,12 +36,15 @@ class PRSummarizer:
         system_prompt = environment.from_string(
             settings.pr_summary_prompt.system
         ).render(self.variables)
+        # print(system_prompt) 
         user_prompt = environment.from_string(settings.pr_summary_prompt.user).render(
             self.variables
         )
-        
+        # print('\n'*3)
+        # print(user_prompt)
+        # print('\n'*3)
         summary = self.llm.chat_completion(system_prompt, user_prompt)
-        curated_summary = json_output_curator(summary)       
+        curated_summary = json_output_curator(summary)               
         print(curated_summary) 
         pr_summary = PRSummary(**json.loads(curated_summary))
         current_time = datetime.now(timezone.utc)
@@ -60,36 +61,7 @@ class PRSummarizer:
         return pr_summary, pr_metadata
 
     
-    def _comments_to_thread(self, pr_comments: list[PRComment]) -> str:
-        thread = defaultdict()
-        for prc in pr_comments:
-            if not prc.in_reply_to_id:
-                thread[prc.id] = {
-                    'parent_thread_id': prc.id,
-                    'child_thread_ids': [],
-                    'diff_hunk': prc.diff_hunk,
-                    'html_url': prc.html_url,
-                    'content': [
-                        {
-                            'user': prc.user,
-                            'body': prc.body,
-                            'created_at': prc.created_at
-                        }
-                    ],
-                    'code_change': prc.code_change
-                }
-            else:
-                thread[prc.in_reply_to_id]['child_thread_ids'].append(prc.id)
-                thread[prc.in_reply_to_id]['content'].append(
-                    {
-                        'user': prc.user,
-                        'body': prc.body,
-                        'created_at': prc.created_at
-                    }
-                )
-
-        return json.dumps([i for i in thread.values()])
-
+    
 
 if __name__ == "__main__":
     from perfeed.llms.ollama_client import OllamaClient
