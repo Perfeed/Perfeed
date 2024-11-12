@@ -13,6 +13,7 @@ class TestPRComment(unittest.TestCase):
             diff_hunk="@@ -1 +1 @@",
             body="This is a comment.",
             created_at="2023-10-01T10:00:00Z",
+            code_change=True,
             in_reply_to_id=456,
             html_url="http://example.com/comment/123",
         )
@@ -24,6 +25,7 @@ class TestPRComment(unittest.TestCase):
             "diff_hunk": "@@ -1 +1 @@",
             "body": "This is a comment.",
             "created_at": "2023-10-01T10:00:00Z",
+            "code_change": True,
             "in_reply_to_id": 456,
             "html_url": "http://example.com/comment/123",
         }
@@ -38,6 +40,9 @@ class TestPRComment(unittest.TestCase):
             diff_hunk=None,
             body=None,
             created_at="2023-10-01T10:00:00Z",
+            code_change=True,
+            in_reply_to_id=456,
+            html_url="http://example.com/comment/123",
         )
         expected_dict = {
             "id": 123,
@@ -47,8 +52,9 @@ class TestPRComment(unittest.TestCase):
             "diff_hunk": None,
             "body": None,
             "created_at": "2023-10-01T10:00:00Z",
-            "in_reply_to_id": None,
-            "html_url": None,
+            "code_change": True,
+            "in_reply_to_id": 456,
+            "html_url": "http://example.com/comment/123",
         }
         self.assertEqual(pr_comment.to_dict(), expected_dict)
 
@@ -63,6 +69,9 @@ class TestPullRequest(unittest.TestCase):
             diff_hunk="@@ -1 +1 @@",
             body="This is a comment.",
             created_at="2023-10-01T10:00:00Z",
+            code_change=True,
+            in_reply_to_id=456,
+            html_url="http://example.com/comment/123",
         )
         pull_request = PullRequest(
             number=1,

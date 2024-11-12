@@ -40,7 +40,7 @@ class WeeklySummarizer:
         print(f"Summarizing {repo_name} for {users} from {start_date} to {end_date}")
 
         now = time.perf_counter()
-        
+
         pr_numbers = await self.git.search_prs(
             repo_name, start_date, end_date, set(users), True
         )
@@ -53,8 +53,14 @@ class WeeklySummarizer:
             self.summarizer.run(repo_name, pr_number) for pr_number in pr_numbers
         ]
 
-        resolved_summaries = await asyncio.gather(*summary_futures, return_exceptions=True)
-        summaries = [resolved_summary[0] for resolved_summary in resolved_summaries if not isinstance(resolved_summary, BaseException)]
+        resolved_summaries = await asyncio.gather(
+            *summary_objects_futures, return_exceptions=True
+        )
+        summaries = [
+            resolved_summary[0]
+            for resolved_summary in resolved_summaries
+            if not isinstance(resolved_summary, BaseException)
+        ]
 
         elapsed = time.perf_counter() - now
         print(f"Summarized {len(summaries)} PRs in {elapsed:0.5f} seconds")
@@ -90,9 +96,10 @@ class WeeklySummarizer:
 if __name__ == "__main__":
     git = GithubProvider("Perfeed")
     llm = OllamaClient("llama3.1")
-    summarizer = PRSummarizer(git=git, llm=llm)    
+    summarizer = PRSummarizer(git=git, llm=llm)
     weekly_summarizer = WeeklySummarizer(git=git, summarizer=summarizer, llm=llm)
     from IPython.display import display, Markdown, Latex
+
     tt = asyncio.run(
         weekly_summarizer.run(
             users=["..."],

@@ -13,6 +13,7 @@ from perfeed.utils import json_output_curator
 from datetime import datetime, timezone
 from typing import Tuple
 
+
 class PRSummarizer:
     def __init__(self, git: BaseGitProvider, llm: BaseClient):
         self.git = git
@@ -36,7 +37,7 @@ class PRSummarizer:
         system_prompt = environment.from_string(
             settings.pr_summary_prompt.system
         ).render(self.variables)
-        # print(system_prompt) 
+        # print(system_prompt)
         user_prompt = environment.from_string(settings.pr_summary_prompt.user).render(
             self.variables
         )
@@ -44,8 +45,8 @@ class PRSummarizer:
         # print(user_prompt)
         # print('\n'*3)
         summary = self.llm.chat_completion(system_prompt, user_prompt)
-        curated_summary = json_output_curator(summary)               
-        print(curated_summary) 
+        curated_summary = json_output_curator(summary)
+        print(curated_summary)
         pr_summary = PRSummary(**json.loads(curated_summary))
         current_time = datetime.now(timezone.utc)
         pr_metadata = PRSummaryMetadata(
@@ -60,16 +61,12 @@ class PRSummarizer:
         )
         return pr_summary, pr_metadata
 
-    
-    
 
 if __name__ == "__main__":
     from perfeed.llms.ollama_client import OllamaClient
     from perfeed.llms.openai_client import OpenAIClient
 
-    summarizer = PRSummarizer(
-        GithubProvider("Perfeed"), llm=OllamaClient("llama3.1")
-    )
+    summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OllamaClient("llama3.1"))
     # summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OpenAIClient("gpt-4o-mini"))
     pr_summary = asyncio.run(summarizer.run("perfeed", 14))
     print(pr_summary)

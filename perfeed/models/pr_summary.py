@@ -29,8 +29,10 @@ class FileDescription(BaseModel):
 class CommentThread(BaseModel):
     parent_thread_id: int = Field(description="parent_thread_id")
     child_thread_ids: list[int] = Field(description="child_thread_ids")
-    users: list[str] = Field(description="list all the users involved in the discussion")
-    html_url: str = Field(description="the url of the main comment")    
+    users: list[str] = Field(
+        description="list all the users involved in the discussion"
+    )
+    html_url: str = Field(description="the url of the main comment")
     summary: str = Field(
         description="provide the context and summerize what the comment thread tries to address"
     )

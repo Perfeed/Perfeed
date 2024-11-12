@@ -21,7 +21,6 @@ class PRComment:
     in_reply_to_id: Optional[int] = None
     html_url: Optional[str] = None
 
-
     def to_dict(self) -> dict:
         return {
             "id": self.id,
