@@ -40,9 +40,9 @@ class WeeklySummarizer:
         print(f"Summarizing {repo_name} for {users} from {start_date} to {end_date}")
 
         now = time.perf_counter()
-        # TODO: filter results by users
-        pr_numbers = await self.git.list_pr_numbers(
-            repo_name, start_date, end_date, True
+        
+        pr_numbers = await self.git.search_prs(
+            repo_name, start_date, end_date, set(users), True
         )
 
         print(f"Summarizing the following PR-{pr_numbers}")
@@ -53,10 +53,8 @@ class WeeklySummarizer:
             self.summarizer.run(repo_name, pr_number) for pr_number in pr_numbers
         ]
 
-        summary_objects = await asyncio.gather(*summary_objects_futures, return_exceptions=True)
-        print(summary_objects)
-        summaries = [i[0] for i in summary_objects]
-
+        resolved_summaries = await asyncio.gather(*summary_futures, return_exceptions=True)
+        summaries = [resolved_summary[0] for resolved_summary in resolved_summaries if not isinstance(resolved_summary, BaseException)]
 
         elapsed = time.perf_counter() - now
         print(f"Summarized {len(summaries)} PRs in {elapsed:0.5f} seconds")
