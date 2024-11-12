@@ -1,10 +1,9 @@
 import asyncio
-import os
 from datetime import datetime
 
-from dotenv import load_dotenv
 from ghapi.all import GhApi
 
+from perfeed.config_loader import settings
 from perfeed.git_providers.base import BaseGitProvider
 from perfeed.models.git_provider import CommentType, PRComment, PullRequest
 from perfeed.models.git_provider import PRComment
@@ -16,9 +15,8 @@ class GithubProvider(BaseGitProvider):
     def __init__(self, owner: str, token: str | None = None):
         self.owner = owner
 
-        load_dotenv()
         self.api = GhApi(
-            owner=owner, token=token or os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+            owner=owner, token=token or settings.github.personal_access_token
         )
 
     async def _get_pr_comments(

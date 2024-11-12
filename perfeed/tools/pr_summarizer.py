@@ -66,7 +66,10 @@ if __name__ == "__main__":
     from perfeed.llms.ollama_client import OllamaClient
     from perfeed.llms.openai_client import OpenAIClient
 
-    summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OllamaClient("llama3.1"))
-    # summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OpenAIClient("gpt-4o-mini"))
-    pr_summary = asyncio.run(summarizer.run("perfeed", 14))
+    summarizer = PRSummarizer(
+        GithubProvider("Perfeed"), llm=OllamaClient(settings.config.ollama_model)
+    )
+    # summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OpenAIClient(settings.config.openai_model))
+    pr_summary = asyncio.run(summarizer.run("perfeed", 13))
+
     print(pr_summary)

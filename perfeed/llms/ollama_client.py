@@ -1,5 +1,8 @@
 import ollama
 
+from perfeed.config_loader import settings
+from perfeed.utils.utils import count_tokens
+
 from .base_client import BaseClient
 from perfeed.utils import count_tokens
 
@@ -26,8 +29,15 @@ class OllamaClient(BaseClient):
         Returns:
             str: The content of the generated message response.
         """
-        approx_token_counts = count_tokens(''.join([system, user]))
-        token_buffer = 1.1
+
+        default_num_ctx = settings.ollama.num_ctx
+        if settings.ollama.auto_num_ctx:
+            approx_token_counts = count_tokens("".join([system, user]))
+            num_ctx_buffer = settings.ollama.num_ctx_buffer
+            default_num_ctx = int(approx_token_counts * num_ctx_buffer)
+
+        default_temperature = settings.ollama.temperature
+
         response = ollama.chat(
             model=self.model,
             messages=[
@@ -35,8 +45,8 @@ class OllamaClient(BaseClient):
                 {"role": "user", "content": user},
             ],
             options={
-                "num_ctx": kwargs.get("num_ctx", int(approx_token_counts*token_buffer)),
-                "temperature": kwargs.get("temperature", 0),
+                "num_ctx": kwargs.get("num_ctx", default_num_ctx),
+                "temperature": kwargs.get("temperature", default_temperature),
             },
         )
 
