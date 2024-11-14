@@ -48,7 +48,6 @@ class GithubProvider(BaseGitProvider):
                 repo=repo_name,
                 pull_number=pr_number,
             )
-
         return [
             PRComment(
                 id=comment["id"],
@@ -58,9 +57,9 @@ class GithubProvider(BaseGitProvider):
                 diff_hunk=comment.get("diff_hunk"),
                 body=comment.get("body"),
                 created_at=comment["created_at"],
-                code_change=not comment[
+                code_change=not comment.get(
                     "position"
-                ],  # position = None indicates the original index of the comment is no longer existed, suggesting a code change happened
+                ),  # position = None indicates the original index of the comment is no longer existed, suggesting a code change happened
                 in_reply_to_id=comment.get("in_reply_to_id"),
                 html_url=comment["html_url"],
             )

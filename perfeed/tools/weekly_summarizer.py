@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     tt = asyncio.run(
         weekly_summarizer.run(
-            users=["..."],
+            users=["jimmytai", "chihangwang"],
             repo_name="perfeed",
             start_of_week="2024-10-21",
         )
