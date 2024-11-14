@@ -1,17 +1,18 @@
 import asyncio
 import json
+from datetime import datetime, timezone
+from typing import Tuple
 
 import requests
 from jinja2 import Environment, StrictUndefined
-
+from perfeed.log import get_logger
 from perfeed.config_loader import settings
 from perfeed.git_providers.base import BaseGitProvider
 from perfeed.git_providers.github import GithubProvider, comments_to_thread
 from perfeed.llms.base_client import BaseClient
+from perfeed.log import get_logger
 from perfeed.models.pr_summary import PRSummary, PRSummaryMetadata
 from perfeed.utils import json_output_curator
-from datetime import datetime, timezone
-from typing import Tuple
 
 
 class PRSummarizer:
@@ -71,5 +72,4 @@ if __name__ == "__main__":
     )
     # summarizer = PRSummarizer(GithubProvider("Perfeed"), llm=OpenAIClient(settings.config.openai_model))
     pr_summary = asyncio.run(summarizer.run("perfeed", 13))
-
-    print(pr_summary)
+    get_logger().info(pr_summary)

@@ -9,6 +9,7 @@ from perfeed.git_providers.base import BaseGitProvider
 from perfeed.git_providers.github import GithubProvider
 from perfeed.llms.base_client import BaseClient
 from perfeed.llms.ollama_client import OllamaClient
+from perfeed.log import get_logger
 from perfeed.models.pr_summary import PRSummary
 from perfeed.tools.pr_summarizer import PRSummarizer
 from perfeed.utils.utils import json_output_curator
@@ -37,7 +38,9 @@ class WeeklySummarizer:
         start_date = date.astimezone()
         end_date = start_date + timedelta(days=6)
 
-        print(f"Summarizing {repo_name} for {users} from {start_date} to {end_date}")
+        get_logger().info(
+            f"Summarizing {repo_name} for {users} from {start_date} to {end_date}"
+        )
 
         now = time.perf_counter()
 
@@ -45,7 +48,7 @@ class WeeklySummarizer:
             repo_name, start_date, end_date, set(users), True
         )
 
-        print(f"Summarizing the following PR-{pr_numbers}")
+        get_logger().info(f"Summarizing the following PR-{pr_numbers}")
 
         # TODO: load the PR summaries from the pervious batch if exists.
 
@@ -56,14 +59,10 @@ class WeeklySummarizer:
         resolved_summaries = await asyncio.gather(
             *summary_objects_futures, return_exceptions=True
         )
-        summaries = [
-            resolved_summary[0]
-            for resolved_summary in resolved_summaries
-            if not isinstance(resolved_summary, BaseException)
-        ]
+        summaries = [resolved_summary[0] for resolved_summary in resolved_summaries if not isinstance(resolved_summary, BaseException)]
 
         elapsed = time.perf_counter() - now
-        print(f"Summarized {len(summaries)} PRs in {elapsed:0.5f} seconds")
+        get_logger().info(f"Summarized {len(summaries)} PRs in {elapsed:0.5f} seconds")
 
         # TODO: store PRSummary results so we don't have to re-process again
 
@@ -90,7 +89,7 @@ class WeeklySummarizer:
         summary = self.llm.chat_completion(system_prompt, user_prompt)
         curated_summary = json_output_curator(summary)
 
-        print(f"Summary of the Week: \n{curated_summary}\n")
+        get_logger().info(f"Summary of the Week: \n{curated_summary}\n")
 
 
 if __name__ == "__main__":
