@@ -6,6 +6,9 @@ from ghapi.all import GhApi
 from perfeed.config_loader import settings
 from perfeed.git_providers.base import BaseGitProvider
 from perfeed.models.git_provider import CommentType, PRComment, PullRequest
+from perfeed.models.git_provider import PRComment
+from collections import defaultdict
+import json
 
 
 class GithubProvider(BaseGitProvider):
@@ -45,7 +48,6 @@ class GithubProvider(BaseGitProvider):
                 repo=repo_name,
                 pull_number=pr_number,
             )
-
         return [
             PRComment(
                 id=comment["id"],
@@ -55,6 +57,9 @@ class GithubProvider(BaseGitProvider):
                 diff_hunk=comment.get("diff_hunk"),
                 body=comment.get("body"),
                 created_at=comment["created_at"],
+                code_change=not comment.get(
+                    "position"
+                ),  # position = None indicates the original index of the comment is no longer existed, suggesting a code change happened
                 in_reply_to_id=comment.get("in_reply_to_id"),
                 html_url=comment["html_url"],
             )
@@ -225,6 +230,29 @@ class GithubProvider(BaseGitProvider):
             page += 1
 
         return all_prs
+
+
+def comments_to_thread(pr_comments: list[PRComment]) -> str:
+    thread = defaultdict()
+    for prc in pr_comments:
+        if not prc.in_reply_to_id:
+            thread[prc.id] = {
+                "parent_thread_id": prc.id,
+                "child_thread_ids": [],
+                "diff_hunk": prc.diff_hunk,
+                "html_url": prc.html_url,
+                "content": [
+                    {"user": prc.user, "body": prc.body, "created_at": prc.created_at}
+                ],
+                "code_change": prc.code_change,
+            }
+        else:
+            thread[prc.in_reply_to_id]["child_thread_ids"].append(prc.id)
+            thread[prc.in_reply_to_id]["content"].append(
+                {"user": prc.user, "body": prc.body, "created_at": prc.created_at}
+            )
+
+    return json.dumps([i for i in thread.values()])
 
 
 # if __name__ == "__main__":

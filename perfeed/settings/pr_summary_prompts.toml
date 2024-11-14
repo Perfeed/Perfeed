@@ -18,9 +18,9 @@ Example output:
 
 ```json
 {
-    "type": ["Bug fix"],
+    "type": ["..."],
     "title": "...",
-    "description": "- ...",
+    "description": "...",
     "pr_files": [
         {
             "filename": "...",
@@ -33,9 +33,12 @@ Example output:
     ],
     "comments": [
         {
-            "id": ...,
+            "parent_thread_id": ...,
+            "child_thread_ids": [...],
             "html_url": "...",
+            "users": [...]
             "summary": "...",
+            "details": "...",
             "eval_aspect": ["..."],
             "lead_to_action": "...",
             "lead_to_action_desc": "..."
@@ -69,6 +72,6 @@ PR comments:
 '{{comments}}'
 ======
 
-Response (should be a valid PRSummary json, and nothing else):
-```json
+Response only json, no description before or after.
+Answer:
 """

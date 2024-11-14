@@ -17,6 +17,7 @@ class PRComment:
     diff_hunk: Optional[str]
     body: Optional[str]
     created_at: str
+    code_change: bool
     in_reply_to_id: Optional[int] = None
     html_url: Optional[str] = None
 
@@ -29,6 +30,7 @@ class PRComment:
             "diff_hunk": self.diff_hunk,
             "body": self.body,
             "created_at": self.created_at,
+            "code_change": self.code_change,
             "in_reply_to_id": self.in_reply_to_id,
             "html_url": self.html_url,
         }

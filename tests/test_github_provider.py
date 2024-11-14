@@ -28,6 +28,7 @@ class TestGithubProvider(unittest.TestCase):
                 "created_at": "2023-10-01T10:00:00+08:00",
                 "body": "Test issue comment",
                 "html_url": "http://example.com/comment/1",
+                "position": None,
             }
         ]
 
@@ -52,6 +53,7 @@ class TestGithubProvider(unittest.TestCase):
                 "created_at": "2023-10-01T11:00:00+08:00",
                 "body": "Test review comment",
                 "html_url": "http://example.com/comment/2",
+                "position": 1,
             }
         ]
 
@@ -76,6 +78,7 @@ class TestGithubProvider(unittest.TestCase):
                 "created_at": "2023-10-01T10:00:00+08:00",
                 "body": "Issue comment",
                 "html_url": "http://example.com/comment/1",
+                "position": None,
             }
         ]
         self.mock_api.pulls.list_review_comments.return_value = [
@@ -85,6 +88,7 @@ class TestGithubProvider(unittest.TestCase):
                 "created_at": "2023-10-01T11:00:00+08:00",
                 "body": "Review comment",
                 "html_url": "http://example.com/comment/2",
+                "position": 1,
             }
         ]
 

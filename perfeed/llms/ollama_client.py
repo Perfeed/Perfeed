@@ -4,7 +4,7 @@ from perfeed.config_loader import settings
 from perfeed.utils.utils import count_tokens
 
 from .base_client import BaseClient
-
+from perfeed.utils import count_tokens
 
 class OllamaClient(BaseClient):
     def __init__(self, model: str):
