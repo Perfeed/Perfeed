@@ -5,7 +5,6 @@ from typing import Tuple
 
 import requests
 from jinja2 import Environment, StrictUndefined
-from perfeed.log import get_logger
 from perfeed.config_loader import settings
 from perfeed.git_providers.base import BaseGitProvider
 from perfeed.git_providers.github import GithubProvider, comments_to_thread
@@ -47,7 +46,7 @@ class PRSummarizer:
         # print('\n'*3)
         summary = self.llm.chat_completion(system_prompt, user_prompt)
         curated_summary = json_output_curator(summary)
-        print(curated_summary)
+        get_logger().info(curated_summary)
         pr_summary = PRSummary(**json.loads(curated_summary))
         current_time = datetime.now(timezone.utc)
         pr_metadata = PRSummaryMetadata(
