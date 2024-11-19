@@ -17,6 +17,9 @@ ollama = "^0.3.3"
 dynaconf = "^3.2.6"
 tiktoken = "^0.8.0"
 loguru = "^0.7.2"
+ipykernel = "^6.29.5"
+sqlalchemy = "^2.0.36"
+pyarrow = "^18.0.0"
 
 
 [build-system]

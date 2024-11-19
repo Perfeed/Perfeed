@@ -3,7 +3,7 @@ openai_model="gpt-4o-mini"
 ollama_model="llama3.1:8b"
 
 [ollama]
-auto_num_ctx = true # set to True if you don't want to manually set `num_ctx`
+auto_num_ctx = false # set to True if you don't want to manually set `num_ctx`
 num_ctx = 32000 # the size of the context window used to generate the next token. See https://github.com/ollama/ollama/blob/main/docs/modelfile.md#instructions
 num_ctx_buffer = 1.1 # number of contexts to buffer to prevent OOM
 temperature = 0 # See https://github.com/ollama/ollama/blob/main/docs/modelfile.md#instructions
