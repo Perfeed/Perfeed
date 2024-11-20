@@ -1,8 +1,8 @@
-import os
 from typing import Any, Dict
 
 from openai import OpenAI
 from requests.exceptions import RequestException
+
 
 from perfeed.config_loader import settings
 
@@ -11,7 +11,7 @@ from .base_client import BaseClient
 
 class OpenAIClient(BaseClient):
 
-    def __init__(self, model: str) -> None:
+    def __init__(self, model: str = settings.config.openai_model) -> None:
         self.model = model
 
         key = settings.openai.key

@@ -101,8 +101,8 @@ if __name__ == "__main__":
 
     summarizer = PRSummarizer(
         GithubProvider("Perfeed"),
-        llm=OllamaClient(settings.config.ollama_model),
-        # llm=OpenAIClient(settings.config.openai_model),
+        llm=OllamaClient(),
+        # llm=OpenAIClient(),
         store=FeatherStorage(data_type="pr_summary", overwrite=False, append=True),
     )
     pr_summary, pr_metadata = asyncio.run(summarizer.run("perfeed", 13))

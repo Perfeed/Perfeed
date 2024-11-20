@@ -89,7 +89,7 @@ if __name__ == "__main__":
     from perfeed.data_stores.storage_feather import FeatherStorage
 
     git = GithubProvider("Perfeed")
-    llm = OllamaClient("llama3.1")
+    llm = OllamaClient()
     store = FeatherStorage(data_type="pr_summary", overwrite=False, append=True)
     summarizer = PRSummarizer(
         git=git,
