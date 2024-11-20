@@ -13,7 +13,7 @@ class FeatherStorage(BaseStorage):
         super().__init__(data_type, append, overwrite)
 
         # initialize the storage path
-        self.store_dict = f"_data/{data_type}"
+        self.store_dict = f"../_data/{data_type}"
         os.makedirs(self.store_dict, exist_ok=True)
         self.path = os.path.join(self.store_dict, f"feather_store")
         if not os.path.exists(self.path):

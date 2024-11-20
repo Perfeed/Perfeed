@@ -1,9 +1,7 @@
 import asyncio
 import time
 from datetime import datetime, timedelta
-
 from jinja2 import Environment, StrictUndefined
-
 from perfeed.config_loader import settings
 from perfeed.git_providers.base import BaseGitProvider
 from perfeed.git_providers.github import GithubProvider
@@ -12,10 +10,9 @@ from perfeed.llms.ollama_client import OllamaClient
 from perfeed.log import get_logger
 from perfeed.models.pr_summary import PRSummary
 from perfeed.tools.pr_summarizer import PRSummarizer
-from perfeed.utils.utils import json_output_curator
+from IPython.display import display, Markdown
 
 
-# python perfeed.py -users jimmytai chihangwang -repo perfeed-backend -period 1w
 class WeeklySummarizer:
     def __init__(self, git: BaseGitProvider, summarizer: PRSummarizer, llm: BaseClient):
         self.git = git
@@ -45,9 +42,9 @@ class WeeklySummarizer:
         now = time.perf_counter()
 
         pr_numbers = await self.git.search_prs(
-            repo_name, start_date, end_date, set(users), True
+            repo_name, start_date, end_date, set(users), closed_only=True
         )
-
+        assert any(pr_numbers), "no pr number found."
         get_logger().info(f"Summarizing the following PR-{pr_numbers}")
 
         # TODO: load the PR summaries from the pervious batch if exists.
@@ -72,7 +69,6 @@ class WeeklySummarizer:
             for summary in summaries
             if not isinstance(summary, BaseException)
         ]
-
         self.variables = {
             "PRSummary": PRSummary.to_json_schema(),
             "pr_summaries": json_summaries,
@@ -85,25 +81,26 @@ class WeeklySummarizer:
         user_prompt = environment.from_string(
             settings.weekly_summary_prompt.user
         ).render(self.variables)
-
         summary = self.llm.chat_completion(system_prompt, user_prompt)
-        curated_summary = json_output_curator(summary)
-
-        get_logger().info(f"Summary of the Week: \n{curated_summary}\n")
+        display(Markdown(summary))
 
 
 if __name__ == "__main__":
+    from perfeed.data_stores.storage_feather import FeatherStorage
+
     git = GithubProvider("Perfeed")
     llm = OllamaClient("llama3.1")
-    summarizer = PRSummarizer(git=git, llm=llm)
+    store = FeatherStorage(data_type="pr_summary", overwrite=False, append=True)
+    summarizer = PRSummarizer(
+        git=git,
+        llm=llm,
+        store=store
+    )
     weekly_summarizer = WeeklySummarizer(git=git, summarizer=summarizer, llm=llm)
-    from IPython.display import display, Markdown, Latex
-
-    tt = asyncio.run(
+    asyncio.run(
         weekly_summarizer.run(
-            users=["jimmytai", "chihangwang"],
+            users=["jzxcd"],
             repo_name="perfeed",
             start_of_week="2024-10-21",
         )
     )
-    display(Markdown(tt))
