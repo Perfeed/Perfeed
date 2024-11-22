@@ -20,7 +20,8 @@ loguru = "^0.7.2"
 ipykernel = "^6.29.5"
 sqlalchemy = "^2.0.36"
 pyarrow = "^18.0.0"
-
+torch = "^2.0.1"
+notebook = "^7.0.0"
 
 [build-system]
 requires = ["poetry-core"]
