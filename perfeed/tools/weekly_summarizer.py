@@ -44,6 +44,7 @@ class WeeklySummarizer:
         pr_numbers = await self.git.search_prs(
             repo_name, start_date, end_date, set(users), closed_only=True
         )
+        # to ensure pr number can be found. if not, double check user id and date
         assert any(pr_numbers), "no pr number found."
         get_logger().info(f"Summarizing the following PR-{pr_numbers}")
 
