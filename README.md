@@ -39,21 +39,16 @@ Perfeed is an intelligent AI assistant designed to integrate seamlessly with eng
 
 ##  Execution 
 We use the jupyter notebook to do the summary. Here are the steps:
-1. Please go through the `perfeed/notebooks/weekly_summary_demo.ipynb` notebook with the example.
+1. Please go through the `perfeed/notebooks/weekly_summary.ipynb` notebook with the example.
 
-2. Copy `perfeed/notebooks/weekly_summary_demo.ipynb` file to `perfeed/notebooks/weekly_summary.ipynb`
-   ```bash
-    cp perfeed/notebooks/weekly_summary_demo.ipynb perfeed/notebooks/weekly_summary.ipynb
-    ```
-
-3. In the root folder, run the command below and it would redirect you to the browser.
+2. In the root folder, run the command below and it would redirect you to the browser.
    ```bash
    jupyter notebook perfeed/notebooks/weekly_summary.ipynb
    ```
 
    Or you can see the localhost in the terminal after running the cmd. Please paste the URL in the browser, and you can see the notebook.
 
-4. Update the repo owner and the repo you want in the notebook via browser, and execute. 
+3. Update the repo owner and the repo you want in the notebook via browser, and execute. 
    - Here's the way to find the Owner Repo, and the Author name. Here's the example PR URL: `https://github.com/Perfeed/perfeed/pull/29`
       - Owner: `Perfeed`
       - Repo: `perfeed` 
