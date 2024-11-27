@@ -65,16 +65,16 @@ class PRSummarizer:
         system_prompt = environment.from_string(
             settings.pr_summary_prompt.system
         ).render(self.variables)
-        get_logger().debug(f"system_prompt: \n{system_prompt}")
+        # get_logger().debug(f"system_prompt: \n{system_prompt}")
 
         user_prompt = environment.from_string(settings.pr_summary_prompt.user).render(
             self.variables
         )
-        get_logger().debug(f"user_prompt: \n{user_prompt}")
+        # get_logger().debug(f"user_prompt: \n{user_prompt}")
 
         summary = self.llm.chat_completion(system_prompt, user_prompt)
         curated_summary = json_output_curator(summary)
-        get_logger().debug(f"curated_summary: \n{curated_summary}")
+        # get_logger().debug(f"curated_summary: \n{curated_summary}")
 
         pr_summary = PRSummary(**json.loads(curated_summary))
         current_time = datetime.now(timezone.utc)
@@ -101,14 +101,10 @@ if __name__ == "__main__":
 
     summarizer = PRSummarizer(
         GithubProvider("Perfeed"),
-        llm=OllamaClient(settings.config.ollama_model),
+        llm=OllamaClient(),
+        # llm=OpenAIClient(),
         store=FeatherStorage(data_type="pr_summary", overwrite=False, append=True),
     )
-    # summarizer = PRSummarizer(
-    #     GithubProvider("Perfeed"),
-    #     llm=OpenAIClient(settings.config.openai_model),
-    #     store=FeatherStorage(data_type="pr_summary", overwrite=False, append=True),
-    # )
     pr_summary, pr_metadata = asyncio.run(summarizer.run("perfeed", 13))
     get_logger().info(f"pr_summary: \n{pr_summary}")
     get_logger().info(f"f pr_metadata: \n{pr_metadata}")

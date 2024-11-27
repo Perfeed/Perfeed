@@ -13,7 +13,7 @@ class SQLStorage(BaseStorage):
 
     def __init__(self, data_type: str, append: bool = True, overwrite: bool = False):
         super().__init__(data_type, append, overwrite)
-        self.store_dict = f"_data/{data_type}"
+        self.store_dict = f"../_data/{data_type}"
         self.db_path = os.path.join(self.store_dict, "sqldb_store.sqlite")
         self.data_type = data_type
         # Create a SQLAlchemy engine with the local SQLite database
