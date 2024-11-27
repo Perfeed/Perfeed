@@ -4428,7 +4428,7 @@ opt-einsum = ["opt-einsum (>=3.3)"]
 
 [package.source]
 type = "legacy"
-url = "https://download.pytorch.org/whl/cu116"
+url = "https://download.pytorch.org/whl/cu121"
 reference = "pytorch"
 
 [[package]]
@@ -5020,4 +5020,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a82c4019b0918a7bb483247927112dc481cc3958766333fde8218b39862e26ab"
+content-hash = "6f24c81915ae55ed85e213ed143dc28fcdbdd27ae1d00538ba646235e105481a"
