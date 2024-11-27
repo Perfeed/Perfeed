@@ -4,6 +4,9 @@ A personalized AI assistant tailored to streamline engineering team workflows.
 ## 🌟 Overview
 Perfeed is an intelligent AI assistant designed to integrate seamlessly with engineering teams, making tasks like reviewing faster and more efficient. Struggling with a heavy workload and time-consuming reviews? Perfeed is here to help!
 
+## Features
+Currently, Perfeed offers a key feature: summarizing pull requests to generate a comprehensive weekly summary. More features are on the way, driven by user feedback and feature requests. Stay tuned for updates!
+
 ## ⚙️ Getting Started
 
 ### Prerequisites
