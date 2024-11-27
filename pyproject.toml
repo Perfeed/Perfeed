@@ -20,8 +20,13 @@ loguru = "^0.7.2"
 ipykernel = "^6.29.5"
 sqlalchemy = "^2.0.36"
 pyarrow = "^18.0.0"
-torch = "^2.0.1"
+torch = { version = "2.0.1", source="pytorch"}
 notebook = "^7.0.0"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu116"
+priority = "supplemental"
 
 [build-system]
 requires = ["poetry-core"]
