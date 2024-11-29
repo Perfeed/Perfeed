@@ -21,10 +21,6 @@ jobs:
         run: poetry install
       - name: insall pytest
         run: poetry add --dev pytest
-      - name: Install PyTorch Manually (if needed)
-        run: |
-          pip install torch==2.0.1+cu121 -f https://download.pytorch.org/whl/cu121/torch_stable.html
-          poetry lock --no-update
       - name: Install Just
         uses: extractions/setup-just@v2
         with:
