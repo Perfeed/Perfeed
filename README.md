@@ -34,12 +34,10 @@ Follow these steps to set up and configure the project.
 
 ### **2. Configure Environment**
 
-#### Add Secrets:
+#### Add Github Secrets:
 - Edit the file `perfeed/settings/.secrets.toml` and provide the necessary values:
   - GitHub Personal Token (`personal_access_token`):  
     Generate a token by following the GitHub Personal Access Token Guide at [https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
-
-- *(Optional)* Modify the file `perfeed/settings/configs.toml` to customize the default configurations.
 
 ---
 
@@ -61,7 +59,7 @@ Install Ollama by following the instructions in the Ollama Installation Guide at
 - Follow the specific instructions provided for running the selected model.
 
 #### Update Configuration:
-Specify the version of the model you downloaded in the `perfeed/settings/configs.toml` file.
+Specify the downloaded model version under the ollama_model setting in the perfeed/settings/configs.toml file.
 
 ---
 
@@ -78,8 +76,11 @@ Rename the `.secrets_template.toml` file to `.secrets.toml` in the settings fold
 #### Add an OpenAI API Key:
 Obtain an API key from OpenAI by following the OpenAI API Key Guide at [https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key).
 
+#### Setup the model version
+Update `openai_model` in `perfeed/settings/configs.toml` with the model you want. Here's the [list](https://platform.openai.com/docs/models).
+
 ### **4. Update Configuration**:
-Specify the OpenAI model version you wish to use in the `perfeed/settings/configs.toml` file.
+Specify the variables for Ollama you wish to use in the `perfeed/settings/configs.toml` file.
 
 ---
 
