@@ -22,23 +22,68 @@ Currently, Perfeed offers a key feature: summarizing pull requests to generate a
      curl -sSL https://install.python-poetry.org | python3 - --version 1.8.3
      ```
 
-### Step-by-Step Setup
+## Step-by-Step Setup
 
-1. **Install Dependencies**  
+Follow these steps to set up and configure the project.
+
+### **1. Install Dependencies**  
    Run the following command in the root directory:  
    ```bash
    poetry install
    ```
-   
-2. **Configure Environment**:
-    - Copy `perfeed/settings/.secrets_template.toml` file to `.secrets.toml`
-    ```bash
-    cp perfeed/settings/.secrets_template.toml perfeed/settings/.secrets.toml
-    ```
-    - Edit perfeed/settings/.secrets.toml and add the necessary values 
-        - Github personal token, personal_access_token, is necessary. Please generate the token by going through the [Github doc](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-        - If you want to use OpenAI, a key is necessary. Please read the [OpenAI doc](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)
-    - (Optional) Update the values in perfeed/settings/configs.toml if you'd like to change the default configurations.
+
+### **2. Configure Environment**
+
+#### Add Secrets:
+- Edit the file `perfeed/settings/.secrets.toml` and provide the necessary values:
+  - GitHub Personal Token (`personal_access_token`):  
+    Generate a token by following the GitHub Personal Access Token Guide at [https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+
+- *(Optional)* Modify the file `perfeed/settings/configs.toml` to customize the default configurations.
+
+---
+
+### **3. Optional: Use Ollama (Local Model)**
+
+If you prefer to run a local model to protect your data, follow these steps:
+
+#### Copy the Template:
+Copy the `.secrets_template.toml` file to `.secrets.toml` by renaming the file in the settings folder.
+   ```bash
+   cp perfeed/settings/.secrets_template.toml perfeed/settings/.secrets.toml
+   ```
+
+#### Install Ollama:
+Install Ollama by following the instructions in the Ollama Installation Guide at [https://ollama.com/download](https://ollama.com/download).
+
+#### Download and Run a Model:
+- Browse the Ollama Model List at [https://ollama.com/search](https://ollama.com/search) and choose a model to download.
+- Follow the specific instructions provided for running the selected model.
+
+#### Update Configuration:
+Specify the version of the model you downloaded in the `perfeed/settings/configs.toml` file.
+
+---
+
+### **3. Optional: Use ChatGPT (OpenAI Models)**
+
+To use ChatGPT via OpenAI's API, follow these steps:
+
+#### Copy the Template:
+Rename the `.secrets_template.toml` file to `.secrets.toml` in the settings folder.
+   ```bash
+   cp perfeed/settings/.secrets_template.toml perfeed/settings/.secrets.toml
+   ```
+
+#### Add an OpenAI API Key:
+Obtain an API key from OpenAI by following the OpenAI API Key Guide at [https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key).
+
+### **4. Update Configuration**:
+Specify the OpenAI model version you wish to use in the `perfeed/settings/configs.toml` file.
+
+---
+
+Now your setup is complete, and you can begin using the project!
 
 ##  Execution 
 We use the jupyter notebook to do the summary. Here are the steps:
