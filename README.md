@@ -59,7 +59,7 @@ Install Ollama by following the instructions in the Ollama Installation Guide at
 - Follow the specific instructions provided for running the selected model.
 
 #### Update Configuration:
-Specify the downloaded model version under the ollama_model setting in the perfeed/settings/configs.toml file.
+Specify the model version under the ollama_model setting and configure any additional variables for Ollama in the perfeed/settings/configs.toml file.
 
 ---
 
@@ -78,9 +78,6 @@ Obtain an API key from OpenAI by following the OpenAI API Key Guide at [https://
 
 #### Setup the model version
 Update `openai_model` in `perfeed/settings/configs.toml` with the model you want. Here's the [list](https://platform.openai.com/docs/models).
-
-### **4. Update Configuration**:
-Specify the variables for Ollama you wish to use in the `perfeed/settings/configs.toml` file.
 
 ---
 
